@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="index.css">
+  <title>Electron App</title>
+</head>
+<body>
+  <h1 id="header"></h1>
+
+  
+  <button id="newProjBtn">new project</button>
+
+  <div id="myModal" class="modal">
+
+      <!-- Modal content -->
+      <div class="modal-content">
+          <form id="newProject">
+              <span id="closeSpan"></span>
+              <label for="projectName">Project Name</label>
+              <input type="text" name="projectName" id="projectName" required>
+              <br>
+              <label for="standardName">Standard Name</label>
+              <input type="text" name="standardName" id="standardName" required>
+              <div class="dictionary" id="dictionary1">
+                  <label for="key1">key 1</label>
+                  <input type="text" name="key1" id="key1">
+                  <label for="value1">value 1</label>
+                  <input type="text" name="value1" id="value1">
+                </div>
+                <button type="button" class="add-option" id="addOption">add option</button>
+  
+
+
+
+              
+              <input type="submit" value="Submit">
+          </form>
+      </div>
+
+  </div>
+
+  <script src="projectview.js"></script>
+</body>
+</html>

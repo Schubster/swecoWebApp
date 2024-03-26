@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>New Project Form</title>
+<style>
+  /* Modal styles */
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4);
+  }
+
+  .modal-content {
+    background-color: #fefefe;
+    margin: 5% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 600px;
+    border-radius: 10px;
+  }
+
+  /* Close button style */
+  .close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+  }
+
+  .close:hover,
+  .close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<h2>New Project Form</h2>
+
+<form action="" method="post">
+  
+  <label for="project_name">Project Name:</label><br>
+  <input type="text" id="project_name" name="project_name"><br><br>
+
+  <label for="standard">Select Standard:</label><br>
+  <select id="standard" name="standard">
+    <option value="existing_standard">Existing Standard</option>
+    <option value="new_standard">New Standard</option>
+  </select><br><br>
+
+  <div id="new_standard_modal" class="modal">
+    <div class="modal-content">
+      <span class="close" id="close_standard_modal">&times;</span>
+      <label for="standard_name">Standard Name:</label><br>
+      <input type="text" id="standard_name" name="standard_name"><br><br>
+      <div class="standards" id="standards">
+      <select name="dictionary">
+        <option value="existing_dictionary">Existing Dictionary</option>
+        <option value="new_dictionary">New Dictionary</option>
+      </select><br><br>
+    </div>
+      <button type="button" id="add_standard">Add Standard</button><br><br>
+    </div>
+  </div>
+
+  <div id="new_dictionary_modal" class="modal">
+    <div class="modal-content">
+    <span class="close" id="close_dictionary_modal">&times;</span>
+    <label for="dictionary_name">Dictionary Name:</label><br>
+      <input type="text" id="dictionary_name" name="dictionary_name"><br><br>
+
+      <label for="option">Options:</label><br>
+      <div id="options">
+        <div class="option">
+          <input type="text" name="option_key[]" placeholder="Key">
+          <input type="text" name="option_value[]" placeholder="Value">
+        </div>
+      </div>
+      <button type="button" id="add_option">Add Option</button><br><br>
+
+    <button type="button" id="add_dictionary">Add Dictionary</button><br><br>
+      <!-- Add more fields as needed -->
+    </div>
+  </div>
+
+  <input type="submit" value="Submit">
+</form>
+
+<script>
+var standardsDiv = document.getElementById("standards");
+// Get the modals
+var standardModal = document.getElementById("new_standard_modal");
+var dictionaryModal = document.getElementById("new_dictionary_modal");
+
+// Get the button that opens the modals
+
+var standardButton = document.getElementById("standard");
+var dictionaryButtons = standardsDiv.querySelectorAll("select");
+
+// Get the <span> element that closes the modals
+var closeStandardModal = document.getElementById("close_standard_modal");
+var closeDictionaryModal = document.getElementById("close_dictionary_modal");
+
+// When the user clicks on the button, open the modals
+function attachEventListenerToSelect() {
+    standardsDiv.querySelectorAll("select[name='dictionary']").forEach((select) => {
+        select.addEventListener("change", function() {
+            if (this.value === "new_dictionary") {
+                dictionaryModal.style.display = "block";
+                standardModal.style.display = "none";
+            } else {
+                dictionaryModal.style.display = "none";
+            }
+        });
+    });
+}
+attachEventListenerToSelect()
+
+standardButton.addEventListener("change", function() {
+  if (this.value === "new_standard") {
+    standardModal.style.display = "block";
+  } else {
+    standardModal.style.display = "none";
+  }
+});
+
+{% comment %} dictionaryButtons.addEventListener("change", function() {
+  if (this.value === "new_dictionary") {
+    console.log("new")
+    dictionaryModal.style.display = "block";
+    standardModal.style.display = "none"
+  } else {
+    dictionaryModal.style.display = "none";
+  }
+}); {% endcomment %}
+
+// When the user clicks on <span> (x), close the modals
+closeStandardModal.onclick = function() {
+  standardModal.style.display = "none";
+}
+
+closeDictionaryModal.onclick = function() {
+  dictionaryModal.style.display = "none";
+  standardModal.style.display = "block"
+}
+
+// When the user clicks anywhere outside of the modals, close it
+window.onclick = function(event) {
+  if (event.target == standardModal) {
+    standardModal.style.display = "none";
+  }
+  if (event.target == dictionaryModal) {
+    dictionaryModal.style.display = "none";
+  }
+}
+
+document.getElementById("add_standard").addEventListener("click", function(){
+    testStandardList = {
+        'existing_dictionary' : 'Existing Dictionary',
+        'new_dictionary' : 'New Dictionary'
+    }
+
+    var standards = document.getElementById("standards");
+    var standard = document.createElement("select");
+    standard.name = "dictionary"
+
+    for(var Key in testStandardList){
+        var opt = document.createElement('option');
+        opt.value = Key;
+        opt.innerHTML = testStandardList[Key];
+        standard.appendChild(opt);
+    }
+
+    standards.appendChild(standard)
+    attachEventListenerToSelect()
+    //standards.innerHTML += "<br><br>"
+    
+});
+
+document.getElementById("add_option").addEventListener("click", function() {
+    var options = document.getElementById("options");
+    var optionDiv = document.createElement("div");
+    optionDiv.classList.add("option");
+    optionDiv.innerHTML = '<input type="text" name="option_key[]" placeholder="Key"> <input type="text" name="option_value[]" placeholder="Value">';
+    options.appendChild(optionDiv);
+  });
+</script>
+
+</body>
+</html>
