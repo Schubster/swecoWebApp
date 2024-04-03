@@ -27,12 +27,12 @@ function createWindow() {
       nodeIntegration: true,
       contextIsolation: false,
       enableRemoteModule: true,
-      preload: path.join(__dirname, 'render.js'),
+      preload: path.join(__dirname, 'scripts/render.js'),
     },
   });
 
   // Load the index.html of the app.
-  mainWindow.loadFile(path.join(__dirname, 'index.html'));
+  mainWindow.loadFile(path.join(__dirname, 'pages/index.html'));
 
   // Open the DevTools.
   mainWindow.webContents.openDevTools();
@@ -53,7 +53,7 @@ function createFormWindow() {
     },
   });
 
-  formWindow.loadFile(path.join(__dirname, 'form.html'));
+  formWindow.loadFile(path.join(__dirname, 'pages/form.html'));
   formWindow.webContents.openDevTools();
 
 
@@ -61,7 +61,7 @@ function createFormWindow() {
 
 // Listen for the 'load-page' event from the renderer process
 ipcMain.on('load-page', (event, fileName) => {
-  mainWindow.loadFile(path.join(__dirname, fileName));
+  mainWindow.loadFile(path.join(__dirname, "pages/" + fileName));
 });
 
 
@@ -84,13 +84,15 @@ function fetchCSRFToken(callback) {
 
     response.on('end', () => {
       const csrfToken = JSON.parse(data).csrfToken;
+
+      // Once you get the CSRF token, invoke the callback function
+      // and pass the CSRF token as an argument
       callback(csrfToken);
     });
   });
 
   request.end();
 }
-
 
 
 
@@ -130,6 +132,80 @@ ipcMain.on('postData', (event, data) => {
   });
   request.write(JSON.stringify(data));
   request.end();
+});
+
+
+ipcMain.on('fetchStandards', (event, data) => {
+  fetchCSRFToken((csrfToken) => {
+    // Create POST request
+    const request = net.request({
+      method: 'POST',
+      url: 'http://127.0.0.1:8000/api/fetchstandards',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrfToken, // Include CSRF token in request headers
+      },
+    });
+
+    // Send POST request
+    request.on('response', (response) => {
+      let responseData = '';
+
+      response.on('data', (chunk) => {
+        responseData += chunk;
+      });
+
+      response.on('end', () => {
+        console.log('Response from server:', responseData);
+        //responseObj =  JSON.parse(responseData)
+
+        mainWindow.webContents.send('displayApiResponse', responseData);
+        
+        // Handle response as needed
+      });
+    });
+
+    request.write(JSON.stringify(data));
+    request.end();
+  });
+});
+
+ipcMain.on('apiRequest', (event, requestData, url, responseLocation) => {
+// Fetch CSRF token
+fetchCSRFToken((csrfToken) => {
+  // Create POST request
+  const request = net.request({
+    method: 'POST',
+    url: url,
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': csrfToken, // Include CSRF token in request headers
+    },
+  });
+
+  // Send POST request
+  request.on('response', (response) => {
+    let responseData = '';
+
+    response.on('data', (chunk) => {
+      responseData += chunk;
+    });
+
+    response.on('end', () => {
+      console.log('Response from server:', response.statusCode, responseData);
+
+      if (response.statusCode === 200) {
+        mainWindow.webContents.send(responseLocation, responseData);
+      } else {
+        mainWindow.webContents.send("errorResponse", responseData); // Trigger error event with response data
+      }
+    });
+  });
+
+
+  request.write(JSON.stringify(requestData));
+  request.end();
+});
 });
 
 ipcMain.on('login', (event, loginData) => {
@@ -203,6 +279,39 @@ ipcMain.on('register', (event, data) => {
 request.write(JSON.stringify(data));
 request.end();
 });
+});
+
+ipcMain.on('newDict', (event, data) => {
+  // Fetch CSRF token
+  fetchCSRFToken((csrfToken) => {
+    // Create POST request
+    const request = net.request({
+      method: 'POST',
+      url: 'http://127.0.0.1:8000/api/addnewdictionary',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrfToken, // Include CSRF token in request headers
+      },
+    });
+
+    // Send POST request
+    request.on('response', (response) => {
+      let responseData = '';
+
+      response.on('data', (chunk) => {
+        responseData += chunk;
+      });
+
+      response.on('end', () => {
+        console.log('Response from server:', responseData);
+        mainWindow.webContents.send('displayApiResponse', responseData);
+        // Handle response as needed
+      });
+    });
+
+    request.write(data);
+    request.end();
+  });
 });
 
 ipcMain.on('apiResponse', (event, responseData) => {

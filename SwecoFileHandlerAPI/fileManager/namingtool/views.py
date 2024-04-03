@@ -1,8 +1,8 @@
 from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from .models import Users, Names, Projects, UserProjectMapping
-from .serializer import UsersSerializer, ProjectsSerializer
+from .models import Users, Names, Projects, UserProjectMapping, Dictionary, Options, OptionDictMapping, Standard, StandardDictMapping
+from .serializer import UsersSerializer, ProjectsSerializer, DictsDataSerializer, StandardSerializer, TokenSerializer, StandardDataSerializer, NewStandartSerializer
 from django.http import JsonResponse
 from django.middleware.csrf import get_token
 from django.views.decorators.csrf import csrf_protect
@@ -12,8 +12,11 @@ from django.conf import settings
 from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import check_password
 from django.contrib.auth.hashers import make_password
-from .forms import RegisterForm
+from .forms import RegisterForm, DictionaryForm
 import traceback
+import json
+from rest_framework.decorators import parser_classes
+from rest_framework.parsers import JSONParser
 
 
 # Create your views here.
@@ -64,7 +67,7 @@ def loginAPI(request):
         user = Users.objects.get(email=email)
         
         projects = ProjectsSerializer([mapping.project for mapping in UserProjectMapping.objects.filter(user = user)], many=True)
-        print(projects)
+        print(projects.data)
         context = {'token': token, 'email': user.email, 'projects':projects.data}
         if user.role.role == "admin":
             return JsonResponse(context, status=201)
@@ -85,7 +88,7 @@ def registerAPI(request):
         print("se:", serializer.validated_data)
         email = serializer.validated_data['email']
         if(Users.objects.filter(email = email).exists()):
-            return JsonResponse({'error': 'email in use'}, status=201)
+            return JsonResponse({'error': 'email in use'}, status=400)
         
         serializer.save()
         #print(serializer)
@@ -94,9 +97,99 @@ def registerAPI(request):
             # Data is invalid, return validation errors
         Response({'error': 'Method not allowed'}, status=405)
 
+@api_view(['POST'])
+def addNewDictionaryAPI(request):
+    try:
+        if not request.method == 'POST':
+            return JsonResponse({'error': 'Only POST requests are allowed'}, status=405)
+        print(request.data)
+        token = request.data["token"]
+        response = validate_user(TokenSerializer(data={"token": token}))  # Check user validation
+        if response:  # If response is not None
+            return response
+        serializer = NewStandartSerializer(data=request.data)
+        if serializer.is_valid():
+            # Validated data is available as serializer.validated_data
+            #print(serializer.validated_data)
+            id = serializer.validated_data.get('id')
+            standard_name,nameInUse = Names.objects.get_or_create(name = serializer.validated_data.get('name'))
+            dicts = serializer.validated_data.get('dict_data')
+            if Standard.objects.filter(id = id).exists():
+                standard = Standard.objects.get(id=id)
+                standard.name = standard_name
+                standard_dict_mapping = standard.standarddictmapping_set.all().prefetch_related('dictionary', 'dictionary__optiondictmapping_set')
+                print(standard_dict_mapping)
+                return JsonResponse({'error': 'update'}, status=400)
+            if not nameInUse:
+                return JsonResponse({'error': 'a standard with that name already exists'}, status=400)
+            standard = Standard.objects.create(name=standard_name)
+            standard_id = standard.id
+            # Create dictionaries and their mappings
+            dicts_to_create = []
+            option_mappings_to_create = []
+
+            for index, dict_data in enumerate(dicts):
+                dict_name, _ = Names.objects.get_or_create(name=f"{standard_name.name}_dict{index}")
+                new_dict, _ = Dictionary.objects.get_or_create(name=dict_name)
+                dicts_to_create.append(StandardDictMapping(standard=standard, dictionary=new_dict))
+
+                # Create and associate Option objects with the Dictionary objects
+                for key, value in dict_data['options'].items():
+                    option, _ = Options.objects.get_or_create(key=key, value=value)
+                    option_mapping = OptionDictMapping(dictionary=new_dict, option=option)
+                    option_mappings_to_create.append(option_mapping)
+
+            # Bulk create StandardDictMapping objects
+            StandardDictMapping.objects.bulk_create(dicts_to_create)
+
+            # Bulk create OptionDictMapping objects
+            OptionDictMapping.objects.bulk_create(option_mappings_to_create)
+            standard = Standard.objects.all()
+            serializer = StandardSerializer(standard, many=True)
+            return Response(serializer.data)
+        else:
+            # If data is invalid, return error response
+            return Response({"error": serializer.errors}, status=400)
+
+    except Exception as e:
+        traceback.print_exc()
+        print(e)
+        return Response({'error': 'somthing went wrong'}, status=400)
+
+@api_view(['POST'])
+def fetchStandards(request):
+    try:
+        if not request.method == 'POST':
+            return JsonResponse({'error': 'Only POST requests are allowed'}, status=405)
+        data = TokenSerializer(data=request.data)
+        response = validate_user(data)  # Check user validation
+        if response:  # If response is not None
+            return response
+        if "standard_id" in data.validated_data:
+            standard_id = data.validated_data["standard_id"]
+            standard = Standard.objects.filter(id = standard_id)[0]
+            serializer = StandardDataSerializer(standard)
+            return Response(serializer.data)
+        standards = Standard.objects.all()
+        serializer = StandardSerializer(standards, many=True)  # Serialize queryset
+        return Response(serializer.data)
+
+    except Exception as e:
+        traceback.print_exc()
+        print(e)
+        return Response({'error': 'somthing went wrong'}, status=405)
 
 
-
+def validate_user(data):
+        if not data.is_valid():
+            return JsonResponse({'error': 'invalid data format'}, status=400)
+        user_id = check_token_user(data.validated_data["token"])
+        if not user_id:
+            return JsonResponse({'error': 'invalid token'}, status=400)
+        if not Users.objects.filter(id = user_id).exists():
+            return JsonResponse({'error': 'login session expired'}, status=400)
+        if Users.objects.filter(id = user_id)[0].role.id < 2:
+            return JsonResponse({'error': 'invalid user permissions'}, status=400)
 
 def generate_token(user_id):
     payload = {
@@ -106,6 +199,23 @@ def generate_token(user_id):
     }
     token = jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
     return token
+
+def check_token_user(token):
+    try:
+        # Decode the token using the SECRET_KEY
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
+        # Extract the user ID from the payload
+        user_id = payload['user_id']
+        # Return the user ID
+        return user_id
+    except jwt.ExpiredSignatureError:
+        # Handle expired tokens
+        print('Token expired')
+        return None
+    except jwt.InvalidTokenError:
+        # Handle invalid tokens
+        print('Invalid token')
+        return None
 
 
 def csrf_token_endpoint(request):

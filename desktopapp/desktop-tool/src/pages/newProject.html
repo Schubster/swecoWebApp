@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="../style/newproject.css">
+<link rel="stylesheet" href="../style/callout.css">
+
+<title>New Project Form</title>
+</head>
+<body>
+
+<h2>New Project Form</h2>
+
+<form id="project_form" action="" method="post">
+  
+  <label for="project_name">Project Name:</label><br>
+  <input type="text" id="project_name" name="project_name" required><br><br>
+
+  <label for="standard">Select Standard:</label><br>
+  <select id="standard" name="standard">
+  </select>
+  <button type="button" id="edit_standard">use selected as template</button>
+  <button type="button" id="create_standard">create new</button>
+
+  <div id="new_standard_modal" class="modal">
+    <div class="modal-content">
+      <span class="close" id="close_standard_modal">&times;</span>
+      <label for="standard_name">Standard Name:</label><br>
+      <input type="text" id="standard_name" name="standard_name"><br><br>
+      <div class="standards" id="standards">
+
+    </div>
+    
+      <button type="button" id="add_new_dict">Add Standard</button><br><br>
+      <label for="demofield">Demo Field</label>
+      <input type="text" class="demofield" id="demofield" name="demofield" readonly ><br><br>
+      <button type="button" id="submit_standard">Submit New Standard</button><br><br>
+    </div>
+  </div>
+
+  <div id="new_dictionary_modal" class="modal">
+    <div class="modal-content">
+    <span class="close" id="close_dictionary_modal">&times;</span>
+    <label for="dictionary_name">Dictionary Name:</label><br>
+      <input type="text" id="dictionary_name" name="dictionary_name"><br><br>
+
+      <label for="option">Options:</label><br>
+      <div id="options">
+      </div>
+      <button type="button" id="add_option">Add Option</button><br><br>
+
+    <button type="button" id="add_dictionary">Add Dictionary</button><br><br>
+      <!-- Add more fields as needed -->
+    </div>
+  </div>
+
+  <input type="submit" value="Submit">
+</form>
+<script src="../scripts/callout.js"></script>
+<script type="module" src="../scripts/newproject.js"></script>
+</body>
+</html>

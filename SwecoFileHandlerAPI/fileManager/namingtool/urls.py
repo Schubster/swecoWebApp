@@ -9,5 +9,7 @@ path('getAllUsers', views.getUsers),
 path('api/login', views.loginAPI),
 path('csrf_token/', views.csrf_token_endpoint, name='csrf_token_endpoint'),
 path('api/register', views.registerAPI),
+path('api/addnewdictionary', views.addNewDictionaryAPI),
+path('api/fetchstandards', views.fetchStandards),
 path('test', views.test),
 ]

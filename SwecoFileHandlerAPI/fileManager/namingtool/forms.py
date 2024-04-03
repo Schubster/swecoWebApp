@@ -5,3 +5,8 @@ class RegisterForm(forms.Form):
     lastname = forms.CharField()
     email = forms.EmailField()
     password = forms.PasswordInput()
+
+
+class DictionaryForm(forms.Form):
+    name = forms.CharField()
+    dicts = forms.CharField(widget=forms.Textarea)

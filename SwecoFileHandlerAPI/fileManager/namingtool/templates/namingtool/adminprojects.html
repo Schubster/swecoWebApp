@@ -24,7 +24,9 @@
     padding: 20px;
     border: 1px solid #888;
     width: 80%;
-    max-width: 600px;
+    max-width: 900px;
+    height: 400px;
+    max-height: 80%;
     border-radius: 10px;
   }
 
@@ -42,6 +44,24 @@
     text-decoration: none;
     cursor: pointer;
   }
+  .demofield{
+    width: 50%
+  }
+  .standards{
+    display:grid;
+    grid-template-columns: auto auto auto auto auto auto;
+  }
+  .standards > div{
+    display:grid;
+    grid-template:
+    '. .'
+    'select select';
+    grid-gap: 3px;
+    margin:10px;
+  }
+  .standards > div > select{
+    grid-area:select;
+  }
 </style>
 </head>
 <body>
@@ -51,7 +71,7 @@
 <form action="" method="post">
   
   <label for="project_name">Project Name:</label><br>
-  <input type="text" id="project_name" name="project_name"><br><br>
+  <input type="text" id="project_name" name="project_name" required><br><br>
 
   <label for="standard">Select Standard:</label><br>
   <select id="standard" name="standard">
@@ -63,14 +83,15 @@
     <div class="modal-content">
       <span class="close" id="close_standard_modal">&times;</span>
       <label for="standard_name">Standard Name:</label><br>
-      <input type="text" id="standard_name" name="standard_name"><br><br>
+      <input type="text" id="standard_name" name="standard_name" required><br><br>
       <div class="standards" id="standards">
-      <select name="dictionary">
-        <option value="existing_dictionary">Existing Dictionary</option>
-        <option value="new_dictionary">New Dictionary</option>
-      </select><br><br>
+
     </div>
-      <button type="button" id="add_standard">Add Standard</button><br><br>
+    
+      <button type="button" id="add_new_dict">Add Standard</button><br><br>
+      <label for="demofield">Demo Field</label>
+      <input type="text" class="demofield" id="demofield" name="demofield" readonly ><br><br>
+      <button type="button" id="add_standard">Submit New Standard</button><br><br>
     </div>
   </div>
 
@@ -78,14 +99,10 @@
     <div class="modal-content">
     <span class="close" id="close_dictionary_modal">&times;</span>
     <label for="dictionary_name">Dictionary Name:</label><br>
-      <input type="text" id="dictionary_name" name="dictionary_name"><br><br>
+      <input type="text" id="dictionary_name" name="dictionary_name" required><br><br>
 
       <label for="option">Options:</label><br>
       <div id="options">
-        <div class="option">
-          <input type="text" name="option_key[]" placeholder="Key">
-          <input type="text" name="option_value[]" placeholder="Value">
-        </div>
       </div>
       <button type="button" id="add_option">Add Option</button><br><br>
 
@@ -99,33 +116,54 @@
 
 <script>
 var standardsDiv = document.getElementById("standards");
+var demofield = document.getElementById("demofield");
+
+var index = 0;
+
 // Get the modals
 var standardModal = document.getElementById("new_standard_modal");
 var dictionaryModal = document.getElementById("new_dictionary_modal");
 
 // Get the button that opens the modals
-
+var addDictionaryBtn = document.getElementById("add_dictionary");
 var standardButton = document.getElementById("standard");
 var dictionaryButtons = standardsDiv.querySelectorAll("select");
 
 // Get the <span> element that closes the modals
 var closeStandardModal = document.getElementById("close_standard_modal");
 var closeDictionaryModal = document.getElementById("close_dictionary_modal");
-
 // When the user clicks on the button, open the modals
 function attachEventListenerToSelect() {
-    standardsDiv.querySelectorAll("select[name='dictionary']").forEach((select) => {
+
+    selects = standardsDiv.querySelectorAll("select")
+    selects.forEach((select) => {
         select.addEventListener("change", function() {
-            if (this.value === "new_dictionary") {
-                dictionaryModal.style.display = "block";
-                standardModal.style.display = "none";
-            } else {
-                dictionaryModal.style.display = "none";
-            }
+            demofield.value = "";
+          selects.forEach((item) => {
+            demofield.value += item.value;
+          })
         });
     });
 }
+
+function attachEventListenerToButton(button){
+  
+  button.addEventListener("click", function() {
+    index = button.id.split("editdict")[1]
+    displayDictModal(index)
+  })
+
+}
+
+function attachRemove(button){
+  button.addEventListener("click", function() {
+    button.parentElement.remove();
+  })
+
+}
+
 attachEventListenerToSelect()
+
 
 standardButton.addEventListener("change", function() {
   if (this.value === "new_standard") {
@@ -135,15 +173,7 @@ standardButton.addEventListener("change", function() {
   }
 });
 
-{% comment %} dictionaryButtons.addEventListener("change", function() {
-  if (this.value === "new_dictionary") {
-    console.log("new")
-    dictionaryModal.style.display = "block";
-    standardModal.style.display = "none"
-  } else {
-    dictionaryModal.style.display = "none";
-  }
-}); {% endcomment %}
+
 
 // When the user clicks on <span> (x), close the modals
 closeStandardModal.onclick = function() {
@@ -165,36 +195,143 @@ window.onclick = function(event) {
   }
 }
 
-document.getElementById("add_standard").addEventListener("click", function(){
+document.getElementById("add_new_dict").addEventListener("click", function(){
     testStandardList = {
-        'existing_dictionary' : 'Existing Dictionary',
-        'new_dictionary' : 'New Dictionary'
+        'type1' : '001',
+        'type2' : '002'
     }
-
+    
     var standards = document.getElementById("standards");
-    var standard = document.createElement("select");
-    standard.name = "dictionary"
+    nmbrOfDicts = standards.children.length + 1;
+    standardDiv = document.createElement("div")
+    var dict = document.createElement("select");
+    dict.name = "dictionary";
+    dict.id = "dict" + nmbrOfDicts;
+
+    var edit = document.createElement("button");
+    edit.type = "button";
+    edit.id = "editdict" + nmbrOfDicts;
+    edit.innerHTML= "edit";
+    
+    var remove = document.createElement("button");
+    remove.type = "button";
+    remove.innerHTML = "remove";
+
+
 
     for(var Key in testStandardList){
-        var opt = document.createElement('option');
-        opt.value = Key;
-        opt.innerHTML = testStandardList[Key];
-        standard.appendChild(opt);
+      var opt = document.createElement('option');
+      opt.value = testStandardList[Key];
+      opt.innerHTML = Key;
+      dict.appendChild(opt);
     }
 
-    standards.appendChild(standard)
+    standardDiv.appendChild(edit)
+    standardDiv.appendChild(dict)
+    standardDiv.appendChild(remove)
+    standards.appendChild(standardDiv)
+    attachRemove(remove)
     attachEventListenerToSelect()
+    attachEventListenerToButton(edit)
+
     //standards.innerHTML += "<br><br>"
     
 });
 
+function displayDictModal(index){
+  console.log(index)
+  select = document.getElementById("dict"+index)
+  options = select.querySelectorAll("option")
+  var optionsContainer = document.getElementById("options");
+  optionsContainer.innerHTML = '';
+  options.forEach((option) => {
+    newOption = addOption()
+    newOption.children[0].value = option.innerHTML
+    newOption.children[1].value = option.value
+  })
+  var new_btn = addDictionaryBtn.cloneNode(true);
+  addDictionaryBtn.parentNode.replaceChild(new_btn, addDictionaryBtn);
+  addDictionaryBtn = new_btn
+  addDictionaryBtn.addEventListener("click", function () {
+    console.log("noloop")
+    inputs = optionsContainer.querySelectorAll("input")
+    select.innerHTML = '';
+    for(let i = 0; i < inputs.length; i++){
+      console.log("loop")
+      var opt = document.createElement('option');
+      opt.innerHTML = inputs[i].value;
+      opt.value = inputs[++i].value;
+        
+        select.appendChild(opt);
+    }
+    dictionaryModal.style.display = "none";
+    standardModal.style.display = "block"
+  })
+
+  dictionaryModal.style.display = "block";
+    standardModal.style.display = "none"
+}
+
+function addOption(){
+  var optionsContainer = document.getElementById("options");
+  var optionDiv = document.createElement("div");
+  optionDiv.classList.add("option");
+  key = document.createElement("input")
+  key.placeholder = "key"
+  key.name = "option_key[]"
+  key.type = "text"
+
+  value = document.createElement("input")
+  value.placeholder = "value"
+  value.name = "option_value[]"
+  value.type = "text"
+
+  var remove = document.createElement("button");
+  remove.type = "button";
+  remove.innerHTML = "remove";
+
+
+
+  optionDiv.appendChild(key)
+  optionDiv.appendChild(value)
+  optionDiv.appendChild(remove)
+  optionsContainer.appendChild(optionDiv);
+  attachRemove(remove)
+  return optionDiv
+}
+
 document.getElementById("add_option").addEventListener("click", function() {
-    var options = document.getElementById("options");
-    var optionDiv = document.createElement("div");
-    optionDiv.classList.add("option");
-    optionDiv.innerHTML = '<input type="text" name="option_key[]" placeholder="Key"> <input type="text" name="option_value[]" placeholder="Value">';
-    options.appendChild(optionDiv);
+  addOption();
   });
+
+
+document.getElementById("add_standard").addEventListener("click", function() {
+
+  var dictsData = {
+    name: document.getElementById("standard_name").value,
+    dicts: [] // Array to hold dictionaries
+  };
+  
+  // Get all select elements within standardsDiv
+  var selects = standardsDiv.querySelectorAll("select");
+  
+  // Iterate over each select element
+  selects.forEach((select) => {
+    var data = {}; // Object to hold data for each select element
+  
+    // Iterate over each option in the select element
+    select.querySelectorAll("option").forEach((option) => {
+      // Add option value to the data object
+      data[option.innerHTML] = option.value;
+    });
+  
+    // Push the data object to the dicts array in dictsData
+    dictsData.dicts.push(data);
+  });
+  
+  // Print the structured dictsData object
+  console.log(JSON.stringify(dictsData));
+})
 </script>
 
 </body>

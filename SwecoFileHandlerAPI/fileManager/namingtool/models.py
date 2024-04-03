@@ -19,7 +19,7 @@ class Names(models.Model):
 
 
 class Dictionary(models.Model):
-    name = models.ForeignKey('Names', models.DO_NOTHING, blank=True, null=True)
+    name = models.ForeignKey(Names, models.DO_NOTHING, blank=True, null=True)
 
     class Meta:
         managed = False
@@ -44,7 +44,7 @@ class Projects(models.Model):
 
 
 class Roles(models.Model):
-    id = models.IntegerField(primary_key=True)
+    id = models.AutoField(primary_key=True)
     role = models.CharField(unique=True, max_length=45)
 
     class Meta:
@@ -53,6 +53,7 @@ class Roles(models.Model):
 
 
 class Standard(models.Model):
+    id = models.AutoField(primary_key=True)
     name = models.ForeignKey(Names, models.DO_NOTHING, blank=True, null=True)
 
     class Meta:
@@ -100,7 +101,7 @@ class UserProjectMapping(models.Model):
 
 class OptionDictMapping(models.Model):
     id = models.AutoField(primary_key=True)
-    dictonary = models.ForeignKey(Dictionary, models.DO_NOTHING, blank=True, null=True)
+    dictionary = models.ForeignKey(Dictionary, models.DO_NOTHING, blank=True, null=True)
     option = models.ForeignKey(Options, models.DO_NOTHING, blank=True, null=True)
 
     class Meta:

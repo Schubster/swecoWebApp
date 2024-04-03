@@ -1,0 +1,19 @@
+<html><body><form action="" method="post">
+  
+    <label for="project_name">Project Name:</label><br>
+    <input type="text" id="project_name" name="project_name" required=""><br><br>
+  
+    <label for="standard">Select Standard:</label><br>
+    <select id="standard" name="standard">
+      <option id="new_standard_option" value="new_standard">New Standard</option>
+      {%for standard in standards%}
+      <option id="{{standard.id}}" value="{{standard.name.name}}">New Standard</option>
+      {%endfor%}
+    </select><button type="button" id="edit_standard">edit</button>
+  
+    <div id="new_standard_modal" class="modal" style="display: hidden;"><div class="modal-content">
+
+    </div>
+  
+    <input type="submit" value="Submit">
+  </form></body></html>

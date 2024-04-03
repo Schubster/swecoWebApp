@@ -1,4 +1,5 @@
 // Inside form.js
+localStorage.clear();
 const { ipcRenderer } = require('electron');
 
 
