@@ -1,6 +1,6 @@
 // Inside form.js
 localStorage.clear();
-const { ipcRenderer } = require('electron');
+// const { ipcRenderer } = require('electron');
 
 
 
@@ -11,21 +11,16 @@ const inlogForm = document.getElementById('login-form');
 const storeDiv = document.getElementById('storage');
 const registerBtn = document.getElementById('button');
 
-ipcRenderer.on('displayApiResponse', (event, responseData) => {
+ipcRenderer.on('loginResponse', (event, responseData) => {
     // Update HTML elements to display the response data
     const responseContainer = document.getElementById('response-container');
     try{
         responseData = JSON.parse(responseData)
-        if(responseData.hasOwnProperty("error")){
-            responseContainer.textContent = JSON.stringify(responseData);
-            document.getElementById('password').value = "";
-            alert("error: " + responseData["error"])
-        }
-        else{
+        
             for(var key in responseData){
                 localStorage.setItem(key, responseData[key])
             }
-        }
+        
 
         ipcRenderer.send('load-page', 'projectview.html');
     }catch(er){
@@ -69,7 +64,5 @@ inlogForm.addEventListener('submit', (event) => {
     formData.forEach((value, key) => {
         formDataObject[key] = value;
     });
-
-    ipcRenderer.send('login', formDataObject);
-
+    ipcRenderer.send('apiRequest', formDataObject, "http://127.0.0.1:8000/api/login", "loginResponse");
 });

@@ -117,58 +117,8 @@ app.whenReady().then(() => {
   });
 });
 
-ipcMain.on('postData', (event, data) => {
-  // Handle the data posted from the form
-  console.log('Received form data:', data);
-  console.log('jsonData:', JSON.stringify(data))
-
-  // Example: Send data back to the API
-  const request = net.request({
-    method: 'POST',
-    url: 'http://127.0.0.1:8000/post/',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
-  request.write(JSON.stringify(data));
-  request.end();
-});
 
 
-ipcMain.on('fetchStandards', (event, data) => {
-  fetchCSRFToken((csrfToken) => {
-    // Create POST request
-    const request = net.request({
-      method: 'POST',
-      url: 'http://127.0.0.1:8000/api/fetchstandards',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': csrfToken, // Include CSRF token in request headers
-      },
-    });
-
-    // Send POST request
-    request.on('response', (response) => {
-      let responseData = '';
-
-      response.on('data', (chunk) => {
-        responseData += chunk;
-      });
-
-      response.on('end', () => {
-        console.log('Response from server:', responseData);
-        //responseObj =  JSON.parse(responseData)
-
-        mainWindow.webContents.send('displayApiResponse', responseData);
-        
-        // Handle response as needed
-      });
-    });
-
-    request.write(JSON.stringify(data));
-    request.end();
-  });
-});
 
 ipcMain.on('apiRequest', (event, requestData, url, responseLocation) => {
 // Fetch CSRF token
@@ -194,7 +144,7 @@ fetchCSRFToken((csrfToken) => {
     response.on('end', () => {
       console.log('Response from server:', response.statusCode, responseData);
 
-      if (response.statusCode === 200) {
+      if (response.statusCode >= 200 && response.statusCode < 300) {
         mainWindow.webContents.send(responseLocation, responseData);
       } else {
         mainWindow.webContents.send("errorResponse", responseData); // Trigger error event with response data
@@ -208,111 +158,8 @@ fetchCSRFToken((csrfToken) => {
 });
 });
 
-ipcMain.on('login', (event, loginData) => {
-  // Fetch CSRF token
-  fetchCSRFToken((csrfToken) => {
-    // Create POST request
-    const request = net.request({
-      method: 'POST',
-      url: 'http://127.0.0.1:8000/api/login',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': csrfToken, // Include CSRF token in request headers
-      },
-    });
-
-    // Send POST request
-    request.on('response', (response) => {
-      let responseData = '';
-
-      response.on('data', (chunk) => {
-        responseData += chunk;
-      });
-
-      response.on('end', () => {
-        console.log('Response from server:', responseData);
-        //responseObj =  JSON.parse(responseData)
-
-        mainWindow.webContents.send('displayApiResponse', responseData);
-        
-        // Handle response as needed
-      });
-    });
-
-    request.write(JSON.stringify(loginData));
-    request.end();
-  });
-});
 
 
-ipcMain.on('register', (event, data) => {
-  // Fetch CSRF token
-  fetchCSRFToken((csrfToken) => {
-    // Create POST request
-    const request = net.request({
-      method: 'POST',
-      url: 'http://127.0.0.1:8000/api/register',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': csrfToken, // Include CSRF token in request headers
-      },
-    });
-
-    // Send POST request
-    request.on('response', (response) => {
-      let responseData = '';
-
-      response.on('data', (chunk) => {
-        responseData += chunk;
-      });
-
-      response.on('end', () => {
-        console.log('Response from server:', responseData);
-        // responseObj =  JSON.parse(responseData)
-
-        mainWindow.webContents.send('displayApiResponse', responseData);
-        
-        // Handle response as needed
-      });
-    });
-
-request.write(JSON.stringify(data));
-request.end();
-});
-});
-
-ipcMain.on('newDict', (event, data) => {
-  // Fetch CSRF token
-  fetchCSRFToken((csrfToken) => {
-    // Create POST request
-    const request = net.request({
-      method: 'POST',
-      url: 'http://127.0.0.1:8000/api/addnewdictionary',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': csrfToken, // Include CSRF token in request headers
-      },
-    });
-
-    // Send POST request
-    request.on('response', (response) => {
-      let responseData = '';
-
-      response.on('data', (chunk) => {
-        responseData += chunk;
-      });
-
-      response.on('end', () => {
-        console.log('Response from server:', responseData);
-        mainWindow.webContents.send('displayApiResponse', responseData);
-        // Handle response as needed
-      });
-    });
-
-    request.write(data);
-    request.end();
-  });
-});
 
 ipcMain.on('apiResponse', (event, responseData) => {
   // Send the response data to the renderer process

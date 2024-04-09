@@ -1,4 +1,4 @@
-const { ipcRenderer } = require('electron');
+// const { ipcRenderer } = require('electron');
 
 form = document.getElementById('register-form');
 
@@ -9,17 +9,14 @@ form.addEventListener('submit', (event) => {
     formData.forEach((value, key) => {
         formDataObject[key] = value;
     });
-
-    ipcRenderer.send('register', formDataObject);
-
+    ipcRenderer.send('apiRequest', formDataObject, "http://127.0.0.1:8000/api/register", "registerResponse");
+    
 });
 
-ipcRenderer.on('displayApiResponse', (event, responseData) => {
+ipcRenderer.on('registerResponse', (event, responseData) => {
     // Update HTML elements to display the response data
-    const responseContainer = document.getElementById('response-container');
-    if(responseData.hasOwnProperty("response")){
-        ipcRenderer.send('load-page', 'projectview.html');
-    }
+    ipcRenderer.send('load-page', 'projectview.html');
+
 
 
   });
