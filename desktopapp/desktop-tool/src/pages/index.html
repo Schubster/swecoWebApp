@@ -3,20 +3,30 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <link rel="stylesheet" href="../style/forms.css">
   <title>Electron App</title>
 </head>
 <body>
-  <h1>Login</h1>
 
+  <div class="logo">
+    <img src="../style/sweco_logo_600x480 (1).png" alt="Logo">
+</div>
+
+<div class=formlog>
+  <h1 class="login">Login</h1>
 <form id="login-form">
   <label for="email">Email:</label><br>
-  <input type="email" id="email" name="email"><br>
-  <label for="password">Password:</label><br>
-  <input type="password" id="password" name="password"><br><br>
-  <button type="submit">Submit</button>
+  <input type="email" id="email" name="email"class="input-field"><br>
+  <label for="password">Lösenord:</label><br>
+  <input type="password" id="password" name="password"class="input-field" required><br><br>
+  <button class="primarybtn" type="submit">Logga in</button><br><br>
+  <a href="form.html"
+<button class="secondarybtn" id="button">Registrera dig</button>
+</a>
 </form>
-<button id="button">register</button>
+
 <div id="response-container"></div>
+</div>
 
 
   <script src="../scripts/index.js"></script>
