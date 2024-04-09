@@ -1,10 +1,12 @@
 const { ipcRenderer } = require('electron');
 
-function showError(message) {
+function showError(message, error=true) {
     // Create error callout elements
     const errorCallout = document.createElement('div');
     errorCallout.id = 'errorCallout';
-    errorCallout.classList.add('callout', 'error'); // Adding 'error' class for styling
+    var type = "error"
+    if(!error)(type="success")
+    errorCallout.classList.add('callout', type); // Adding 'error' class for styling
   
     const errorText = document.createElement('span');
     errorText.id = 'errorText';

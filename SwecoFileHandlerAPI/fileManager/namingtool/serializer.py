@@ -1,18 +1,31 @@
 from rest_framework import serializers
-from .models import Names, Roles, Users, Projects, Standard, OptionDictMapping, StandardDictMapping, Dictionary, Options
+from .models import Names, Roles, Users, Projects, Standard, OptionDictMapping, StandardDictMapping, Dictionary, Options, StandardProjectMapping
 from django.contrib.auth.hashers import make_password
 
 
 class ProjectsSerializer(serializers.ModelSerializer):
-    name = serializers.CharField()
-    id = serializers.IntegerField()
+    name = serializers.CharField(source='name.name')
+    id = serializers.IntegerField(required=False)
+    standardID = serializers.IntegerField(required=False)
+    standardName = serializers.SerializerMethodField(required=False)
 
     class Meta:
         model = Projects
-        fields = ['id', 'name']
+        fields = ['id', 'name', 'standardID', 'standardName']
 
-
-
+    def get_name(self, obj):
+        return obj.name.name if obj.name else None
+    
+    def get_standardName(self, obj):
+        if obj.id is not None:
+            projectDictMapping = obj.standardprojectmapping_set.all().prefetch_related('standard')
+            standardNames = []
+            for standard_mapping in projectDictMapping:
+                standard = standard_mapping.standard
+                standardNames.append(standard.name.name)
+            return(standardNames)
+            
+        
 class StandardDataSerializer(serializers.ModelSerializer):
     # You can include related fields from ForeignKey relationships using SerializerMethodField
     id = serializers.IntegerField(required=False)
@@ -52,7 +65,7 @@ class StandardDataSerializer(serializers.ModelSerializer):
 
 class StandardSerializer(serializers.ModelSerializer):
     # You can include related fields from ForeignKey relationships using SerializerMethodField
-    name = serializers.SerializerMethodField()
+    name = serializers.CharField(source='name.name')
     id = serializers.IntegerField(required = False)
 
     class Meta:
@@ -106,7 +119,7 @@ class DictsDataSerializer(serializers.Serializer):
 
 class NewStandartSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(required=False)
-    name = serializers.CharField()
+    name = serializers.CharField(source='name.name')
     dict_data = serializers.ListField(child=DictsDataSerializer(), required=False)
     
 
@@ -117,6 +130,7 @@ class NewStandartSerializer(serializers.ModelSerializer):
 
     def get_name(self, obj):
         return obj.name.name if obj.name else None
+    
     
 
 

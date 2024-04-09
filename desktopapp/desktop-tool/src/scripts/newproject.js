@@ -12,8 +12,11 @@ var testStandardList = {
 }
 
 var standardsDiv = document.getElementById("standards");
+
 var demofield = document.getElementById("demofield");
-var standardSelect = document.getElementById("standard");
+var standardContainer = document.getElementById("standard_container");
+
+var standardSelects = standardContainer.querySelector("select");
 var dictionaryNameField = document.getElementById("dictionary_name")
 var submitStandard = document.getElementById("submit_standard")
 var index = 0;
@@ -26,6 +29,7 @@ var dictionaryModal = document.getElementById("new_dictionary_modal");
 var addDictionaryBtn = document.getElementById("add_dictionary");
 var standardButton = document.getElementById("edit_standard");
 var createStandard = document.getElementById("create_standard");
+var addStrandardSelector = document.getElementById("add_standard");
 var dictionaryButtons = standardsDiv.querySelectorAll("select");
 
 // Get the <span> element that closes the modals
@@ -39,12 +43,15 @@ ipcRenderer.on('allStandardResponse', (event, responseData) => {
   console.log(response)
   clearStandardModal()
   standardModal.style.display = "none"
-  standardSelect.innerHTML = ''
+  standardSelects[0].innerHTML = ''
   response.forEach((standard) => {
     var opt = document.createElement('option');
       opt.value = standard.id;
       opt.innerHTML = standard.name;
       standardSelect.appendChild(opt);
+  })
+  standardSelects.forEach((select) => {
+    select.innerHTML = standardSelects[0].innerHTML
   })
 });
 ipcRenderer.on('standardDictsResponse', (event, responseData) => {
@@ -101,12 +108,16 @@ function clearStandardModal(){
   standards.innerHTML = ''
 }
 
+function addEditFunction(btn){
+  btn.addEventListener("click", function() {
 
-standardButton.addEventListener("click", function() {
-  clearStandardModal()
-  fetchData["standard_id"] = standardSelect.value
-  ipcRenderer.send('apiRequest', fetchData, "http://127.0.0.1:8000/api/fetchstandards", "standardDictsResponse");
-});
+    select = standardButton.parentNode.firstChild.nextSibling
+    clearStandardModal()
+    fetchData["standard_id"] = select.value
+    ipcRenderer.send('apiRequest', fetchData, "http://127.0.0.1:8000/api/fetchstandards", "standardDictsResponse");
+  });
+}
+addEditFunction(standardButton)
 
 createStandard.addEventListener("click", function(){
   clearStandardModal()
@@ -294,6 +305,12 @@ form.addEventListener('submit', (event) => {
   
   formDataObject["name"] = formData.get("project_name")
   formDataObject["standardID"] = formData.get("standard")
-  console.log(formData)
-  console.log(formDataObject)
+  formDataObject["token"] = localStorage.getItem("token")
+
+  ipcRenderer.send('apiRequest', formDataObject, "http://127.0.0.1:8000/api/addnewproject", "newProject");
+});
+
+ipcRenderer.on('newProject', (event, responseData) => {
+  console.log("data: " + responseData)
+  showError(JSON.parse(responseData).response, false)
 });

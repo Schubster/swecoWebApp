@@ -1,9 +1,12 @@
 from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from .models import Users, Names, Projects, UserProjectMapping, Dictionary, Options, OptionDictMapping, Standard, StandardDictMapping
-from .serializer import UsersSerializer, ProjectsSerializer, DictsDataSerializer, StandardSerializer, TokenSerializer, StandardDataSerializer, NewStandartSerializer
+from .models import (Users, Names, Projects, UserProjectMapping, Dictionary, Options,
+                    OptionDictMapping, Standard, StandardDictMapping, StandardProjectMapping, )
+from .serializer import (UsersSerializer, ProjectsSerializer, DictsDataSerializer, StandardSerializer,
+                         TokenSerializer, StandardDataSerializer, NewStandartSerializer)
 from django.http import JsonResponse
+from django.db.models import Q
 from django.middleware.csrf import get_token
 from django.views.decorators.csrf import csrf_protect
 import jwt
@@ -64,9 +67,8 @@ def loginAPI(request):
 
             # Assuming you have a function to generate JWT tokens securely
         token = generate_token(user.pk)
-        user = Users.objects.get(email=email)
-        
-        projects = ProjectsSerializer([mapping.project for mapping in UserProjectMapping.objects.filter(user = user)], many=True)
+        user_projects = UserProjectMapping.objects.filter(user=user).select_related('project')
+        projects = ProjectsSerializer(user_projects, many=True)
         print(projects.data)
         context = {'token': token, 'email': user.email, 'projects':projects.data}
         if user.role.role == "admin":
@@ -75,7 +77,7 @@ def loginAPI(request):
     except Exception as e:
         traceback.print_exc()
         print(e)
-        return Response({'error': 'somthing went wrong'}, status=405)
+        return Response({'error': 'somthing went wrong'}, status=500)
     
 
 
@@ -104,7 +106,7 @@ def addNewDictionaryAPI(request):
             return JsonResponse({'error': 'Only POST requests are allowed'}, status=405)
         print(request.data)
         token = request.data["token"]
-        response = validate_user(TokenSerializer(data={"token": token}))  # Check user validation
+        response = validate_admin(TokenSerializer(data={"token": token}))  # Check user validation
         if response:  # If response is not None
             return response
         serializer = NewStandartSerializer(data=request.data)
@@ -112,7 +114,7 @@ def addNewDictionaryAPI(request):
             # Validated data is available as serializer.validated_data
             #print(serializer.validated_data)
             id = serializer.validated_data.get('id')
-            standard_name,nameInUse = Names.objects.get_or_create(name = serializer.validated_data.get('name'))
+            standard_name,nameInUse = Names.objects.get_or_create(name = serializer.validated_data.get("name").get("name"))
             dicts = serializer.validated_data.get('dict_data')
             if Standard.objects.filter(id = id).exists():
                 standard = Standard.objects.get(id=id)
@@ -154,7 +156,7 @@ def addNewDictionaryAPI(request):
     except Exception as e:
         traceback.print_exc()
         print(e)
-        return Response({'error': 'somthing went wrong'}, status=400)
+        return Response({'error': 'somthing went wrong'}, status=500)
 
 @api_view(['POST'])
 def fetchStandards(request):
@@ -162,7 +164,7 @@ def fetchStandards(request):
         if not request.method == 'POST':
             return JsonResponse({'error': 'Only POST requests are allowed'}, status=405)
         data = TokenSerializer(data=request.data)
-        response = validate_user(data)  # Check user validation
+        response = validate_admin(data)  # Check user validation
         if response:  # If response is not None
             return response
         if "standard_id" in data.validated_data:
@@ -177,10 +179,101 @@ def fetchStandards(request):
     except Exception as e:
         traceback.print_exc()
         print(e)
-        return Response({'error': 'somthing went wrong'}, status=405)
+        return Response({'error': 'somthing went wrong'}, status=500)
+    
+
+@api_view(['POST'])
+def addNewProject(request):
+    try:
+        
+        if not request.method == 'POST':
+            return JsonResponse({'error': 'Only POST requests are allowed'}, status=405)
+        if not "token" in request.data:
+            return JsonResponse({'error': 'session token required'}, status=400)
+        token = request.data["token"]
+        response = validate_admin(TokenSerializer(data={"token": token}))
+        if response:  # If response is not None
+            return response
+        
+        serializer = ProjectsSerializer(data=request.data)
+        if not serializer.is_valid():
+            return JsonResponse({'error': serializer.errors}, status=400)
+        
+        projectNameStr = serializer.validated_data.get("name").get("name")
+        standardID = serializer.validated_data["standardID"]
+        projectName,_ = Names.objects.get_or_create(name=projectNameStr)
+        if Projects.objects.filter(name=projectName.id).exists():
+            return JsonResponse({'error': 'a project with that name already exists'}, status=400)
+        if not Standard.objects.filter(id=standardID):
+             return JsonResponse({'error': 'the selected standard cant be found'}, status=400)
+        standard = Standard.objects.get(id=standardID)
+        newProject = Projects.objects.create(name=projectName)
+        mapping = StandardProjectMapping.objects.create(project=newProject, standard=standard)
+        newProject.save()
+        mapping.save()
+        return JsonResponse({'response': 'project created successfuly'}, status=201)
+        
+    except Exception as e:
+        traceback.print_exc()
+        print(e)
+        return Response({'error': 'somthing went wrong'}, status=500)
+    
+@api_view(["post"])
+def fetchProjects(request):
+    try:
+        if not request.method == 'POST':
+            return JsonResponse({'error': 'Only POST requests are allowed'}, status=405)
+        serializer = TokenSerializer(data=request.data)
+        response = validate_user(serializer)  # Check user validation
+        if response is JsonResponse:  # If response is not None
+            return response
+        user = response
+        print(user.role.id)
+        if user.role.id > 1:
+            projects = Projects.objects.all()
+            serializedProjects = ProjectsSerializer(projects, many=True)
+            return Response(serializedProjects.data, status=200)
+        # userProjects = UserProjectMapping.objects.filter(user=user).select_related('project')
+        # print(userProjects)
+        # projects = ProjectsSerializer(userProjects, many=True)
+        projects = ProjectsSerializer(Projects.objects.filter(userprojectmapping__user=user),many=True)
+        print((projects.data))
+        return Response(projects.data, status=200)
+
+    except Exception as e:
+        traceback.print_exc()
+        print(e)
+        return Response({'error': 'somthing went wrong'}, status=500)
+    
+def searchUser(request):
+    try:
+        if not request.method == 'POST':
+            return JsonResponse({'error': 'Only POST requests are allowed'}, status=405)
+        token = request.data["token"]
+        response = validate_admin(TokenSerializer(data={"token": token}))
+        if response:  # If response is not None
+            return response
+        searchStr = request.data["searchString"]
+        serilaizer = Users.objects.filter(Q(role=1) | Q(email__icontains=searchStr))[:15]
+        return response(serilaizer.data, status=200)
+    except Exception as e:
+        traceback.print_exc()
+        print(e)
+        return Response({'error': 'somthing went wrong'}, status=500)
+    
 
 
 def validate_user(data):
+        if not data.is_valid():
+            return JsonResponse({'error': 'invalid data format'}, status=400)
+        user_id = check_token_user(data.validated_data["token"])
+        if not user_id:
+            return JsonResponse({'error': 'invalid token'}, status=400)
+        if not Users.objects.filter(id = user_id).exists():
+            return JsonResponse({'error': 'login session expired'}, status=400)
+        return Users.objects.get(id = user_id)
+        
+def validate_admin(data):
         if not data.is_valid():
             return JsonResponse({'error': 'invalid data format'}, status=400)
         user_id = check_token_user(data.validated_data["token"])

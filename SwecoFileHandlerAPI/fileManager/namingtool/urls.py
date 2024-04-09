@@ -12,4 +12,8 @@ path('api/register', views.registerAPI),
 path('api/addnewdictionary', views.addNewDictionaryAPI),
 path('api/fetchstandards', views.fetchStandards),
 path('test', views.test),
+path('api/addnewproject', views.addNewProject),
+path('api/fetchprojects', views.fetchProjects),
+path('api/users/search', views.searchUser)
+
 ]

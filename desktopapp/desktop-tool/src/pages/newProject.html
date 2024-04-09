@@ -5,24 +5,42 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="../style/newproject.css">
 <link rel="stylesheet" href="../style/callout.css">
+<link rel="stylesheet" href="../style/menu.css">
 
 <title>New Project Form</title>
 </head>
 <body>
-
-<h2>New Project Form</h2>
+  <div class="header"><h1>Nytt Projekt</h1></div>
+  <input type="checkbox" class="openSidebarMenu" id="openSidebarMenu">
+  <label for="openSidebarMenu" class="sidebarIconToggle">
+    <div class="spinner diagonal part-1"></div>
+    <div class="spinner horizontal"></div>
+    <div class="spinner diagonal part-2"></div>
+  </label>
+    <div id="sidebarMenu">
+        <ul class="sidebarMenuInner">
+            <li>SWECO <span>Web App</span></li>
+            <li><a href="https://www.sweco.se/" target="_blank"><span>Sweco Företagssida</span></a></li>
+            <li onclick='menuSend("newproject.html")'><a><span>Projektskapare</span></a></li>
+            <li onclick='menuSend("projectview.html")'><a><span>Projektvy</span></a></li>
+            <li onclick='menuSend("index.html")'><span>Logga ut</span></a></li>
+        </ul>
+    </div>
 
 <form id="project_form" action="" method="post">
   
   <label for="project_name">Project Name:</label><br>
   <input type="text" id="project_name" name="project_name" required><br><br>
+  <label for="standard">Select Standards:</label><br>
+  <div class="standard-container" id="standard_container">
+    <div class="standard-div" id="standardDiv[]">
+      <select></select>
+      <button type="button" id="edit_standard">use selected as template</button>
+      <button type="button" id="create_standard">create new</button><br>
+    </div>
 
-  <label for="standard">Select Standard:</label><br>
-  <select id="standard" name="standard">
-  </select>
-  <button type="button" id="edit_standard">use selected as template</button>
-  <button type="button" id="create_standard">create new</button>
-
+  </div>
+  <button type="button" id="add_standard">add standard</button><br>
   <div id="new_standard_modal" class="modal">
     <div class="modal-content">
       <span class="close" id="close_standard_modal">&times;</span>
@@ -30,7 +48,7 @@
       <input type="text" id="standard_name" name="standard_name"><br><br>
       <div class="standards" id="standards">
 
-    </div>
+      </div>
     
       <button type="button" id="add_new_dict">Add Standard</button><br><br>
       <label for="demofield">Demo Field</label>
@@ -58,6 +76,7 @@
   <input type="submit" value="Submit">
 </form>
 <script src="../scripts/callout.js"></script>
+<script src="../scripts/menu.js"></script>
 <script type="module" src="../scripts/newproject.js"></script>
 </body>
 </html>

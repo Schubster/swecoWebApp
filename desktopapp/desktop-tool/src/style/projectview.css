@@ -1,0 +1,23 @@
+.project-container {
+    background-color: rgba(169, 169, 169, 0.5); /* Gray and transparent */
+    width: 80%;
+    height: fit-content;
+    margin: 150px auto; /* Centers the container horizontally */
+    display: flex;
+    flex-wrap: wrap;
+    min-width: 400px;
+    justify-content: space-between; /* Evenly distributes the child divs */
+}
+
+.project-container > div {
+    flex: 1; /* Each child div takes equal space */
+    min-width: 300px; /* Minimum width of 300px */
+    max-width: 500px;
+    width: auto;
+    height: 200px;
+    margin: 0 auto 10px; /* Even margin between the container sides and other divs */
+    padding: 10px;
+    box-sizing: border-box; /* Includes padding and border in the div's total width */
+    border: 1px solid black; /* Black border */
+    cursor:pointer;
+}
