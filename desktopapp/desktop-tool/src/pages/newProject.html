@@ -32,15 +32,18 @@
   <label for="project_name">Project Name:</label><br>
   <input type="text" id="project_name" name="project_name" required><br><br>
   <label for="standard">Select Standards:</label><br>
-  <div class="standard-container" id="standard_container">
-    <div class="standard-div" id="standardDiv[]">
-      <select></select>
-      <button type="button" id="edit_standard">use selected as template</button>
-      <button type="button" id="create_standard">create new</button><br>
+  
+  <div class="selected-standards-container"></div>
+  <div class="dropdown">
+    <input class="dropdown-input" type="text" placeholder="Type to search" />
+    <div class="dropdown-content">
+      <div class="grid-container"></div>
     </div>
-
   </div>
-  <button type="button" id="add_standard">add standard</button><br>
+
+
+
+  <button type="button" id="new_standard">Create new empty standard</button><br>
   <div id="new_standard_modal" class="modal">
     <div class="modal-content">
       <span class="close" id="close_standard_modal">&times;</span>
@@ -75,8 +78,10 @@
 
   <input type="submit" value="Submit">
 </form>
+
 <script src="../scripts/callout.js"></script>
 <script src="../scripts/menu.js"></script>
+<script src="../includes/dropdown.js"></script>
 <script type="module" src="../scripts/newproject.js"></script>
 </body>
 </html>

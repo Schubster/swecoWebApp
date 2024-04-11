@@ -198,7 +198,7 @@ CREATE TABLE `dictionary` (
   UNIQUE KEY `id_UNIQUE` (`id`),
   KEY `dictionary_name_fk_idx` (`name_id`),
   CONSTRAINT `dictionary_name_fk` FOREIGN KEY (`name_id`) REFERENCES `names` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_czech_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=44 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_czech_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -207,6 +207,7 @@ CREATE TABLE `dictionary` (
 
 LOCK TABLES `dictionary` WRITE;
 /*!40000 ALTER TABLE `dictionary` DISABLE KEYS */;
+INSERT INTO `dictionary` VALUES (1,2),(2,3),(3,5),(4,7),(5,9),(6,11),(7,15),(8,18),(9,21),(10,30),(11,31),(12,34),(13,35),(14,38),(15,39),(16,42),(17,43),(18,47),(19,50),(20,53),(21,56),(22,57),(23,60),(24,63),(25,78),(26,80),(27,90),(28,91),(29,92),(30,95),(31,96),(32,97),(33,99),(34,100),(35,101),(36,103),(37,104),(38,106),(39,107),(40,113),(41,114),(42,116),(43,117);
 /*!40000 ALTER TABLE `dictionary` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -334,7 +335,7 @@ CREATE TABLE `names` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `string_UNIQUE` (`name`),
   UNIQUE KEY `id_UNIQUE` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_czech_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=119 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_czech_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -343,6 +344,7 @@ CREATE TABLE `names` (
 
 LOCK TABLES `names` WRITE;
 /*!40000 ALTER TABLE `names` DISABLE KEYS */;
+INSERT INTO `names` VALUES (98,'{\'name\': \'test1A\'}'),(99,'{\'name\': \'test1A\'}_dict0'),(100,'{\'name\': \'test1A\'}_dict1'),(101,'{\'name\': \'test1A\'}_dict2'),(58,'1278234'),(61,'1278234sss'),(111,'a'),(51,'asdasd'),(72,'asdasd32342365656'),(70,'asdasdasdasd56'),(54,'asdasdasdasdasd22323'),(79,'created with template'),(80,'created with template_dict0'),(64,'dc ycd6uycdtyujdctyh'),(66,'dc ycd6uycdtyujdctyh 2'),(68,'dc ycd6uycdtyujdctyh 23'),(74,'dsfsdfsdfsdf999'),(76,'dsfsdfsdfsdf9999'),(22,'lol'),(12,'Names object (1)'),(14,'Names object (13)'),(15,'Names object (13)_dict0'),(17,'Names object (16)'),(18,'Names object (16)_dict0'),(20,'Names object (19)'),(21,'Names object (19)_dict0'),(23,'Names object (22)'),(25,'Names object (24)'),(27,'Names object (26)'),(29,'Names object (28)'),(30,'Names object (28)_dict0'),(31,'Names object (28)_dict1'),(33,'Names object (32)'),(34,'Names object (32)_dict0'),(35,'Names object (32)_dict1'),(37,'Names object (36)'),(38,'Names object (36)_dict0'),(39,'Names object (36)_dict1'),(41,'Names object (40)'),(42,'Names object (40)_dict0'),(43,'Names object (40)_dict1'),(46,'Names object (45)'),(47,'Names object (45)_dict0'),(49,'Names object (48)'),(50,'Names object (48)_dict0'),(52,'Names object (51)'),(53,'Names object (51)_dict0'),(55,'Names object (54)'),(56,'Names object (54)_dict0'),(57,'Names object (54)_dict1'),(59,'Names object (58)'),(60,'Names object (58)_dict0'),(62,'Names object (61)'),(63,'Names object (61)_dict0'),(65,'Names object (64)'),(67,'Names object (66)'),(69,'Names object (68)'),(71,'Names object (70)'),(73,'Names object (72)'),(75,'Names object (74)'),(77,'new standard with test2 as template'),(78,'new standard with test2 as template_dict0'),(45,'newest'),(48,'newest2'),(26,'nsmr<dtsnf'),(28,'nsmr<dtsnf2'),(32,'nsmr<dtsnf3'),(36,'nsmr<dtsnf4'),(108,'nytt proj'),(109,'nytt projekkt'),(110,'nytt projekty'),(87,'project Error Test'),(88,'project test 1'),(81,'Project1'),(82,'Project2'),(83,'Project3'),(84,'project4'),(85,'project5'),(86,'project6'),(118,'projektTest'),(93,'RobertsProjekt'),(24,'st1'),(13,'Stål'),(16,'Stål2'),(19,'Stål3'),(112,'standard1'),(113,'standard1_dict0'),(114,'standard1_dict1'),(115,'standard1B'),(116,'standard1B_dict0'),(117,'standard1B_dict1'),(1,'test1'),(2,'test10'),(3,'test11'),(44,'test111221123312'),(40,'test13'),(102,'test1A'),(103,'test1A_dict0'),(104,'test1A_dict1'),(105,'test1B'),(106,'test1B_dict0'),(107,'test1B_dict1'),(4,'test2'),(5,'test20'),(6,'test3'),(7,'test30'),(8,'test4'),(9,'test40'),(10,'test5'),(11,'test50'),(89,'testRoban'),(90,'testRoban_dict0'),(91,'testRoban_dict1'),(92,'testRoban_dict2'),(94,'testRoban2'),(95,'testRoban2_dict0'),(96,'testRoban2_dict1'),(97,'testRoban2_dict2');
 /*!40000 ALTER TABLE `names` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -354,15 +356,15 @@ DROP TABLE IF EXISTS `option_dict_mapping`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `option_dict_mapping` (
-  `dictonary_id` int DEFAULT NULL,
+  `dictionary_id` int DEFAULT NULL,
   `option_id` int DEFAULT NULL,
   `id` int NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (`id`),
-  KEY `dict_option_fk_idx` (`dictonary_id`),
+  KEY `dict_option_fk_idx` (`dictionary_id`),
   KEY `option_dict_fk_idx` (`option_id`),
-  CONSTRAINT `dict_option_fk` FOREIGN KEY (`dictonary_id`) REFERENCES `dictionary` (`id`),
+  CONSTRAINT `dict_option_fk` FOREIGN KEY (`dictionary_id`) REFERENCES `dictionary` (`id`),
   CONSTRAINT `option_dict_fk` FOREIGN KEY (`option_id`) REFERENCES `options` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_czech_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=63 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_czech_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -371,6 +373,7 @@ CREATE TABLE `option_dict_mapping` (
 
 LOCK TABLES `option_dict_mapping` WRITE;
 /*!40000 ALTER TABLE `option_dict_mapping` DISABLE KEYS */;
+INSERT INTO `option_dict_mapping` VALUES (1,1,1),(1,2,2),(2,3,3),(2,4,4),(3,5,5),(3,6,6),(4,3,7),(4,4,8),(5,3,9),(5,4,10),(6,3,11),(6,4,12),(19,13,13),(20,14,14),(21,15,15),(21,16,16),(22,17,17),(22,18,18),(23,19,19),(24,19,20),(25,5,21),(25,6,22),(26,5,23),(26,6,24),(27,20,25),(27,21,26),(28,22,27),(28,23,28),(29,1,29),(29,2,30),(30,20,31),(30,21,32),(31,22,33),(31,23,34),(32,1,35),(32,2,36),(32,24,37),(33,1,38),(33,2,39),(34,3,40),(34,4,41),(34,25,42),(35,26,43),(35,27,44),(36,1,45),(36,2,46),(37,28,47),(37,29,48),(37,30,49),(38,1,50),(38,2,51),(39,31,52),(39,32,53),(39,33,54),(40,1,55),(40,2,56),(41,34,57),(41,35,58),(42,1,59),(42,2,60),(43,22,61),(43,23,62);
 /*!40000 ALTER TABLE `option_dict_mapping` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -387,7 +390,7 @@ CREATE TABLE `options` (
   `value` varchar(45) COLLATE utf8mb3_czech_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id_UNIQUE` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_czech_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=36 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_czech_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -396,6 +399,7 @@ CREATE TABLE `options` (
 
 LOCK TABLES `options` WRITE;
 /*!40000 ALTER TABLE `options` DISABLE KEYS */;
+INSERT INTO `options` VALUES (1,'Area','A'),(2,'Volym','V'),(3,'type1','001'),(4,'type2','002'),(5,'test1','001'),(6,'test2','002'),(7,'name','null'),(8,'options','{\'Stål\': \'S\'}'),(9,'name','test10'),(10,'options','{\'Area\': \'A\', \'Volym\': \'V\'}'),(11,'name','a'),(12,'options','{\'a\': \'a\'}'),(13,'a','a'),(14,'sdf','sdfsdf'),(15,'we','asd'),(16,'asdasd','zxczxczxc'),(17,'asdasdasd','adsasdasd'),(18,'asdasd','asfsdfsdfcvbcvbcbdf'),(19,'12','qwasdad'),(20,'Arkitekt','A'),(21,'Elektriker','E'),(22,'typ1','-01'),(23,'typ2','-02'),(24,'kos','K'),(25,'type3','003'),(26,'Meter','-m'),(27,'Centimeter','-cm'),(28,'type1','1'),(29,'type2','2'),(30,'type3','3'),(31,'type1','01'),(32,'type2','02'),(33,'type3','03'),(34,'typ1','-001'),(35,'typ2','-002');
 /*!40000 ALTER TABLE `options` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -413,7 +417,7 @@ CREATE TABLE `projects` (
   UNIQUE KEY `id_UNIQUE` (`id`),
   KEY `name_idx` (`name_id`),
   CONSTRAINT `name_id` FOREIGN KEY (`name_id`) REFERENCES `names` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_czech_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_czech_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -422,6 +426,7 @@ CREATE TABLE `projects` (
 
 LOCK TABLES `projects` WRITE;
 /*!40000 ALTER TABLE `projects` DISABLE KEYS */;
+INSERT INTO `projects` VALUES (8,81),(7,82),(2,83),(3,84),(4,85),(5,86),(6,87),(9,88),(10,93),(12,110),(13,118);
 /*!40000 ALTER TABLE `projects` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -465,7 +470,7 @@ CREATE TABLE `standard` (
   UNIQUE KEY `standard_UNIQUE` (`id`),
   KEY `id_idx` (`name_id`),
   CONSTRAINT `name_id_fk` FOREIGN KEY (`name_id`) REFERENCES `names` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_czech_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=45 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_czech_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -474,6 +479,7 @@ CREATE TABLE `standard` (
 
 LOCK TABLES `standard` WRITE;
 /*!40000 ALTER TABLE `standard` DISABLE KEYS */;
+INSERT INTO `standard` VALUES (7,1),(8,4),(9,6),(10,8),(11,10),(12,12),(13,14),(14,17),(15,20),(16,23),(17,25),(18,29),(19,33),(20,37),(21,41),(22,46),(23,49),(24,52),(25,55),(26,59),(27,62),(28,65),(29,67),(30,69),(31,71),(32,73),(33,75),(34,76),(35,77),(36,79),(37,89),(38,94),(39,98),(40,102),(41,105),(42,111),(43,112),(44,115);
 /*!40000 ALTER TABLE `standard` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -491,9 +497,9 @@ CREATE TABLE `standard_dict_mapping` (
   PRIMARY KEY (`id`),
   KEY `stand_dict_fk_idx` (`standard_id`),
   KEY `dict_stand_fk_idx` (`dictionary_id`),
-  CONSTRAINT `dict_stand_fk` FOREIGN KEY (`dictionary_id`) REFERENCES `dictionary` (`id`),
-  CONSTRAINT `stand_dict_fk` FOREIGN KEY (`standard_id`) REFERENCES `standard` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_czech_ci;
+  CONSTRAINT `dict_stand_fk` FOREIGN KEY (`dictionary_id`) REFERENCES `dictionary` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `stand_dict_fk` FOREIGN KEY (`standard_id`) REFERENCES `standard` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=48 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_czech_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -502,6 +508,7 @@ CREATE TABLE `standard_dict_mapping` (
 
 LOCK TABLES `standard_dict_mapping` WRITE;
 /*!40000 ALTER TABLE `standard_dict_mapping` DISABLE KEYS */;
+INSERT INTO `standard_dict_mapping` VALUES (7,1,5),(7,2,6),(8,3,7),(9,4,8),(10,5,9),(11,6,10),(13,7,11),(14,8,12),(15,9,13),(18,10,14),(18,11,15),(19,12,16),(19,13,17),(20,14,18),(20,15,19),(21,16,20),(21,17,21),(22,18,22),(23,19,23),(24,20,24),(25,21,25),(25,22,26),(26,23,27),(27,24,28),(35,25,29),(36,26,30),(37,27,31),(37,28,32),(37,29,33),(38,30,34),(38,31,35),(38,32,36),(39,33,37),(39,34,38),(39,35,39),(40,36,40),(40,37,41),(41,38,42),(41,39,43),(43,40,44),(43,41,45),(44,42,46),(44,43,47);
 /*!40000 ALTER TABLE `standard_dict_mapping` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -521,7 +528,7 @@ CREATE TABLE `standard_project_mapping` (
   KEY `project_standard_fk` (`standard_id`),
   CONSTRAINT `project_id_fk` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `project_standard_fk` FOREIGN KEY (`standard_id`) REFERENCES `standard` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_czech_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=50 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_czech_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -530,6 +537,7 @@ CREATE TABLE `standard_project_mapping` (
 
 LOCK TABLES `standard_project_mapping` WRITE;
 /*!40000 ALTER TABLE `standard_project_mapping` DISABLE KEYS */;
+INSERT INTO `standard_project_mapping` VALUES (9,2,1),(10,3,2),(11,4,3),(35,5,4),(8,6,5),(8,7,6),(13,8,7),(7,9,8),(37,10,9),(7,12,45),(8,12,46),(9,12,47),(43,13,48),(44,13,49);
 /*!40000 ALTER TABLE `standard_project_mapping` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -549,7 +557,7 @@ CREATE TABLE `user_project_mapping` (
   KEY `project_id_idx` (`project_id`),
   CONSTRAINT `user_project_mapping_project_fk` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `user_project_mapping_user_fk` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_czech_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_czech_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -558,6 +566,7 @@ CREATE TABLE `user_project_mapping` (
 
 LOCK TABLES `user_project_mapping` WRITE;
 /*!40000 ALTER TABLE `user_project_mapping` DISABLE KEYS */;
+INSERT INTO `user_project_mapping` VALUES (2,2,1);
 /*!40000 ALTER TABLE `user_project_mapping` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -600,4 +609,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-03-26 10:54:13
+-- Dump completed on 2024-04-11 11:53:42

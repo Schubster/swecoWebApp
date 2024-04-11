@@ -6,7 +6,7 @@ from django.contrib.auth.hashers import make_password
 class ProjectsSerializer(serializers.ModelSerializer):
     name = serializers.CharField(source='name.name')
     id = serializers.IntegerField(required=False)
-    standardID = serializers.IntegerField(required=False)
+    standardID = serializers.ListField(child = serializers.IntegerField(), required=False)
     standardName = serializers.SerializerMethodField(required=False)
 
     class Meta:
