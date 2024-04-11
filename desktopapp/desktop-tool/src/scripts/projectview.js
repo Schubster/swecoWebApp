@@ -28,7 +28,7 @@ ipcRenderer.on('projectsResponse', (event, responseData) => {
 
       // projectDiv.appendChild(projectHeader)
       // projectDiv.appendChild(projectStandard)
-      projectDiv.innerHTML += `<h1>${project.name}</h1><h2>standards: ${standards.join(" ")}</h2>`
+      projectDiv.innerHTML += `<h1>${project.name}</h1><h2>standards: ${standards.join(", ")}</h2>`
       projectContainer.appendChild(projectDiv)
       
 

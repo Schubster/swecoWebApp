@@ -194,23 +194,31 @@ def addNewProject(request):
         response = validate_admin(TokenSerializer(data={"token": token}))
         if response:  # If response is not None
             return response
-        
+        print(request.data)
         serializer = ProjectsSerializer(data=request.data)
         if not serializer.is_valid():
             return JsonResponse({'error': serializer.errors}, status=400)
         
         projectNameStr = serializer.validated_data.get("name").get("name")
-        standardID = serializer.validated_data["standardID"]
+        standardsID = serializer.validated_data["standardID"]
+        print(standardsID)
+        standards = Standard.objects.filter(id__in=standardsID) 
         projectName,_ = Names.objects.get_or_create(name=projectNameStr)
         if Projects.objects.filter(name=projectName.id).exists():
             return JsonResponse({'error': 'a project with that name already exists'}, status=400)
-        if not Standard.objects.filter(id=standardID):
-             return JsonResponse({'error': 'the selected standard cant be found'}, status=400)
-        standard = Standard.objects.get(id=standardID)
+        if len(standardsID) > len(standards):
+             return JsonResponse({'error': 'the selected standards cant be found'}, status=400)
+
         newProject = Projects.objects.create(name=projectName)
-        mapping = StandardProjectMapping.objects.create(project=newProject, standard=standard)
+        mappings = []
+        for standard in standards:
+            mapping = StandardProjectMapping(project=newProject, standard=standard)
+            mappings.append(mapping)
+    
+        # Bulk create the mappings
+        StandardProjectMapping.objects.bulk_create(mappings)
         newProject.save()
-        mapping.save()
+
         return JsonResponse({'response': 'project created successfuly'}, status=201)
         
     except Exception as e:
@@ -254,8 +262,25 @@ def searchUser(request):
         if response:  # If response is not None
             return response
         searchStr = request.data["searchString"]
-        serilaizer = Users.objects.filter(Q(role=1) | Q(email__icontains=searchStr))[:15]
-        return response(serilaizer.data, status=200)
+        serializer = Users.objects.filter(Q(role=1) | Q(email__icontains=searchStr))[:15]
+        return response(serializer.data, status=200)
+    except Exception as e:
+        traceback.print_exc()
+        print(e)
+        return Response({'error': 'somthing went wrong'}, status=500)
+    
+def searchStandard(request):
+    try:
+        if not request.method == 'POST':
+            return JsonResponse({'error': 'Only POST requests are allowed'}, status=405)
+        token = request.data["token"]
+        response = validate_admin(TokenSerializer(data={"token": token}))
+        if response:  # If response is not None
+            return response
+        searchStr = request.data["searchString"]
+        users = Users.objects.filter(Q(role=1) | Q(email__icontains=searchStr))[:15]
+        serializer = UsersSerializer(users, many=True)
+        return response(serializer.data, status=200)
     except Exception as e:
         traceback.print_exc()
         print(e)

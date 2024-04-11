@@ -59,3 +59,95 @@
   .standards > div > select{
     grid-area:select;
   }
+
+  datalist {
+    max-height: 200px;
+    overflow-y: auto;
+}
+/* Style for the custom dropdown */
+      /* Style for the input container */
+      .dropdown {
+        position: relative;
+        display: flex;
+        margin-bottom: 10px; /* Add margin between dropdowns */
+      }
+
+      /* Style for the dropdown input */
+      .dropdown-input {
+        padding: 10px 30px 10px 20px; /* Increased padding to accommodate the arrow */
+        width: 200px; /* Set the width of the input */
+      }
+
+
+
+      /* Style for the dropdown content */
+      .dropdown-content {
+        display: none;
+        position: absolute;
+        top: 30px;
+        background-color: #f9f9f9;
+        box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+        padding: 12px 16px;
+        z-index: 1;
+        max-height: 200px; /* Maximum height for the dropdown */
+        overflow-y: auto; /* Enable vertical scrolling */
+        overflow-x: hidden;
+      }
+
+      /* Style for the grid container */
+      .grid-container {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr); /* 3 equal-width columns */
+        gap: 10px; /* Gap between grid items */
+      }
+
+      /* Style for the grid item */
+      .grid-item {
+        background-color: #ddd;
+        padding: 10px;
+        text-align: center;
+        white-space: nowrap; /* Ensure content doesn't wrap */
+        overflow: hidden; /* Hide any overflow */
+        cursor: pointer; /* Add cursor pointer */
+        height: 80px; /* Set a fixed height */
+      }
+
+      /* Style for grid item on hover */
+      .grid-item:hover {
+        background-color: #bbb;
+      }
+
+      /* Style for selected item */
+      .selected-item {
+        background-color: #3e64ff;
+        color: white;
+        padding: 5px 10px;
+        margin: 5px;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+
+      /* Style for selected item on hover */
+      .selected-item:hover {
+        background-color: #1e3eb2;
+      }
+
+      .option-buttons{
+        display: none;
+      }
+
+      /* Style for option buttons */
+      .option-button {
+        background-color: #3e64ff;
+        color: white;
+        padding: 5px 10px;
+        margin: 5px;
+        border-radius: 5px;
+        cursor: pointer;
+        z-index: 3;
+      }
+
+      /* Style for option buttons on hover */
+      .option-button:hover {
+        background-color: #1e3eb2;
+      }
