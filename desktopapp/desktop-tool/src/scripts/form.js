@@ -1,5 +1,4 @@
 //const { ipcRenderer } = require('electron');
-// const { ipcRenderer } = require('electron');
 
 form = document.getElementById('register-form');
 
@@ -20,34 +19,35 @@ form.addEventListener('submit', (event) => {
     formData.forEach((value, key) => {
         formDataObject[key] = value;
     });
+
+
+
+
+    if (password !== confirmPassword) {
+        showError("Lösenordet matchar inte");
+        return;
+    }
     ipcRenderer.send('apiRequest', formDataObject, "http://127.0.0.1:8000/api/register", "registerResponse");
+
+
+    // If all validation checks pass, continue with form submission
+//     const formData = {
+//         email: email,
+//         password: password,
+//         confirmPassword: confirmPassword
+//     };
     
 });
 
-ipcRenderer.on('registerResponse', (event, responseData) => {
-    // Update HTML elements to display the response data
-    ipcRenderer.send('load-page', 'projectview.html');
+// ipcRenderer.on('registerResponse', (event, responseData) => {
+//     // Update HTML elements to display the response data
+//     ipcRenderer.send('load-page', 'projectview.html');
 
 
-    if (password.trim() === "") {
-        alert("Password is required.");
-        return;
-    }
 
-    if (password !== confirmPassword) {
-        alert("Passwords do not match.");
-        return;
-    }
-console.log("success");
-    // If all validation checks pass, continue with form submission
-    const formData = {
-        email: email,
-        password: password,
-        confirmPassword: confirmPassword
-    };
 
-   // ipcRenderer.send('register', formData);
-});
+//    // ipcRenderer.send('register', formData);
+// });
 
 // ipcRenderer.on('displayApiResponse', (event, responseData) => {
 //     // Update HTML elements to display the response data

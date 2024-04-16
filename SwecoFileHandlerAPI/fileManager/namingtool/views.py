@@ -9,7 +9,6 @@ from django.http import JsonResponse
 from django.db.models import Q
 from django.middleware.csrf import get_token
 from django.views.decorators.csrf import csrf_protect
-import jwt
 from datetime import datetime, timedelta
 from django.conf import settings
 from django.contrib.auth import authenticate
@@ -18,6 +17,7 @@ from django.contrib.auth.hashers import make_password
 from .forms import RegisterForm, DictionaryForm
 import traceback
 import json
+import jwt
 from rest_framework.decorators import parser_classes
 from rest_framework.parsers import JSONParser
 

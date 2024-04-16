@@ -37,6 +37,6 @@ function hideError(error) {
     error.remove();
 }
 
-ipcRenderer.on('errorResponse', (event, responseData) => {
-    showError(JSON.parse(responseData).error)
-});
+// ipcRenderer.on('errorResponse', (event, responseData) => {
+//     showError(JSON.parse(responseData).error)
+// });

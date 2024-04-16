@@ -1,6 +1,6 @@
 // Inside your renderer process file (index.js)
 
-const { ipcRenderer } = require('electron');
+//const { ipcRenderer } = require('electron');
 
 // Get the button element
 const btn = document.getElementById("get");

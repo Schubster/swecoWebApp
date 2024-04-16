@@ -20,12 +20,13 @@
     "@electron-forge/plugin-auto-unpack-natives": "^7.3.0",
     "@electron-forge/plugin-fuses": "^7.3.0",
     "@electron/fuses": "^1.7.0",
-    "electron": "29.1.4"
+    "electron": "29.1.4",
+    "electron-prebuilt-compile": "^8.2.0"
   },
   "keywords": [],
   "author": {
-    "name": "Schubster",
-    "email": "erwinhrnell@gmail.com"
+    "name": "Roberts",
+    "email": "robertsgrau@gmail.com"
   },
   "license": "MIT",
   "dependencies": {
