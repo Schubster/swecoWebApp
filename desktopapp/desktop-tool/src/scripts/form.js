@@ -39,9 +39,10 @@ form.addEventListener('submit', (event) => {
     
 });
 
-// ipcRenderer.on('registerResponse', (event, responseData) => {
-//     // Update HTML elements to display the response data
-//     ipcRenderer.send('load-page', 'projectview.html');
+ipcRenderer.on('registerResponse', (event, responseData) => {
+    // Update HTML elements to display the response data
+    ipcRenderer.send('load-page', 'login.html');
+})
 
 
 

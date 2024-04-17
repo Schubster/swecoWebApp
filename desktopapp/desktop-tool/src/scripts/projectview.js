@@ -1,52 +1,14 @@
-<<<<<<< HEAD
-// const { ipcRenderer } = require('electron');
-
-// Project List View
-
-const fetchData = { "token": localStorage.getItem("token") };
-=======
 const fetchData = {"token" : localStorage.getItem("token")}
->>>>>>> nybranch
 ipcRenderer.send('apiRequest', fetchData, "http://127.0.0.1:8000/api/fetchprojects", "projectsResponse");
 
-const projectContainer = document.getElementById("project-container");
-const currentProjectId = localStorage.getItem("currentProjectId");
+projectContainer = document.getElementById("project-container")
 
 ipcRenderer.on('projectsResponse', (event, responseData) => {
     // Update HTML elements to display the response data
-    const projects = JSON.parse(responseData);
+    projects = JSON.parse(responseData)                 
     projects.forEach(project => {
-        const projectDiv = document.createElement("div");
-        projectDiv.classList.add("project-item");
+      console.log(project)
 
-<<<<<<< HEAD
-        const projectHeader = document.createElement("h1");
-        projectHeader.innerHTML = project.name;
-
-        const projectStandard = document.createElement("h2");
-        projectStandard.innerHTML = "Standards: " + project.standardName.join(", ");
-
-        projectDiv.addEventListener("click", () => {
-            localStorage.setItem("currentProjectId", project.id);
-            // Navigate to project view
-            menuSend("users.html");
-        });
-
-        if (project.id === currentProjectId) {
-            // Highlight or mark the currently viewed project
-            projectDiv.classList.add("current-project");
-        }
-
-        projectDiv.appendChild(projectHeader);
-        projectDiv.appendChild(projectStandard);
-        projectContainer.appendChild(projectDiv);
-    });
-});
-
-
-    
-
-=======
       let projectDiv = document.createElement("div")
       let projectHeader = document.createElement("h1")
       projectHeader.innerHTML = project.name
@@ -90,8 +52,9 @@ ipcRenderer.on('projectsResponse', (event, responseData) => {
         // Add functionality to buttons
         const addUserBtn = box.querySelector(".add-user-btn")
         addUserBtn.addEventListener("click", () => {
-          // Add your logic here for adding users
-          console.log("Add user button clicked")
+            localStorage.setItem("currentProjectId", project.id);
+            ipcRenderer.send('load-page', 'users.html');
+          
         })
 
         const addToolBtn = box.querySelector(".add-tool-btn")
@@ -106,4 +69,3 @@ ipcRenderer.on('projectsResponse', (event, responseData) => {
       projectContainer.appendChild(projectDiv)
     });
 });
->>>>>>> nybranch
