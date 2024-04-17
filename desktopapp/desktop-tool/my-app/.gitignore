@@ -90,3 +90,6 @@ typings/
 
 # Electron-Forge
 out/
+
+# Settings for filemanager
+SwecoFileHandlerAPI\fileManager\fileManager\settings.py
