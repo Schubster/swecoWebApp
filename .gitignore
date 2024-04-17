@@ -91,3 +91,7 @@ typings/
 # Electron-Forge
 out/
 
+# djongo settings
+SwecoFileHandlerAPI\fileManager\fileManager\settings.py
+
+
