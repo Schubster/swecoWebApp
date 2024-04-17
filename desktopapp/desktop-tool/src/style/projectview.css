@@ -15,11 +15,11 @@
 .project-container > div {
 
     flex: 1; /* Each child div takes equal space */
-    min-width: 200px; /* Minimum width of 300px */
-    min-height: 200px;
+    min-width: 190px; /* Minimum width of 300px */
+    min-height: 165px;
     overflow:auto;
     background-color: whitesmoke;
-    max-width: 250px;
+    max-width: 300px;
     width: auto;
     height:140px;
     margin: 0 auto 10px; /* Even margin between the container sides and other divs */
@@ -72,7 +72,7 @@
   
   .logo{
     align-items: center;
-    box-shadow: black 2px;
+    box-shadow: rgb(82, 79, 79) 10px 10px 2px;
     display:flex;
     justify-content: center;
     scale: .6;
@@ -82,8 +82,9 @@
     border-radius: 70px;
 }
 .vy{
-    padding-top: 10px;
-    scale: 2.5;
+  font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    text-shadow: rgb(102, 101, 101) 0.5px 0.5px 0.5px;
+    scale: 1.7;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -166,8 +167,8 @@ p{
   font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
   font-size: 30px;
   background-color: transparent;
-  margin-right: 7px;
-  margin-left: 7px;
+  margin-right: 4px;
+  margin-left: 4px;
 
   cursor: pointer;
   margin-top:20px;
