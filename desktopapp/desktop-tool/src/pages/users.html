@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script src="https://kit.fontawesome.com/0ddcbcd5f1.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="../style/users.css">
+    <link rel="stylesheet" href="../style/callout.css">
+    <link rel="stylesheet" href="../style/menu.css">
+    <title>Electron App</title>
+</head>
+
+<body>
+
+    <div class="header">
+        <h1>Projektvy</h1>
+    </div>
+    <input type="checkbox" class="openSidebarMenu" id="openSidebarMenu">
+    <label for="openSidebarMenu" class="sidebarIconToggle">
+        <div class="spinner diagonal part-1"></div>
+        <div class="spinner horizontal"></div>
+        <div class="spinner diagonal part-2"></div>
+    </label>
+    <div id="sidebarMenu">
+        <ul class="sidebarMenuInner">
+            <li>SWECO <span>Web App</span></li>
+            <li><a href="https://www.sweco.se/" target="_blank"><span>Sweco Företagssida</span></a></li>
+            <li onclick='menuSend("newproject.html")'><a><span>Projektskapare</span></a></li>
+            <li onclick='menuSend("projectview.html")'><a><span>Projektvy</span></a></li>
+            <li onclick='menuSend("index.html")'><span>Logga ut</span></a></li>
+        </ul>
+    </div>
+
+
+    <div class="list-container">
+      <div class="input-container">
+      <input class="dropdown-input" type="text" placeholder="Type to search" />
+        <label for="sorting">Filter:</label>
+          <select class="dropdown-select" id="filter">
+            <option value="all">all</option>
+            <option value="In">in project</option>
+            <option value="NotIn">not in project</option>
+          </select>
+      </div>
+        <ul class="styled-list">
+          
+          <!-- Add more list items as needed -->
+        </ul>
+    </div>
+
+
+    <script src="../scripts/callout.js"></script>
+    <script src="../scripts/menu.js"></script>
+    <script src="../scripts/users.js"></script>
+</body>
+
+</html>

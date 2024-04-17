@@ -80,14 +80,22 @@ class StandardSerializer(serializers.ModelSerializer):
         else:
             return None
 
+class UsersInProjectSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField()
+    isInProject = serializers.BooleanField(required=False)
+    
+    class Meta:
+        model = Users
+        fields = ['email', "isInProject"]
 
 class UsersSerializer(serializers.ModelSerializer):
     email = serializers.EmailField()
     password = serializers.CharField()
+    isInProject = serializers.BooleanField(required=False)
     
     class Meta:
         model = Users
-        fields = ['email', 'password']
+        fields = ['email', 'password', "isInProject"]
     
     def create(self, validated_data):
         print(validated_data)

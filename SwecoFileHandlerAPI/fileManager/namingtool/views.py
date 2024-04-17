@@ -4,9 +4,10 @@ from rest_framework.decorators import api_view
 from .models import (Users, Names, Projects, UserProjectMapping, Dictionary, Options,
                     OptionDictMapping, Standard, StandardDictMapping, StandardProjectMapping, )
 from .serializer import (UsersSerializer, ProjectsSerializer, DictsDataSerializer, StandardSerializer,
-                         TokenSerializer, StandardDataSerializer, NewStandartSerializer)
+                         TokenSerializer, StandardDataSerializer, NewStandartSerializer, UsersInProjectSerializer)
 from django.http import JsonResponse
-from django.db.models import Q
+from django.db.models import Q, Case, When, BooleanField, Exists, OuterRef
+import django.db.models.functions as dbFunc
 from django.middleware.csrf import get_token
 from django.views.decorators.csrf import csrf_protect
 import jwt
@@ -67,10 +68,7 @@ def loginAPI(request):
 
             # Assuming you have a function to generate JWT tokens securely
         token = generate_token(user.pk)
-        user_projects = UserProjectMapping.objects.filter(user=user).select_related('project')
-        projects = ProjectsSerializer(user_projects, many=True)
-        print(projects.data)
-        context = {'token': token, 'email': user.email, 'projects':projects.data}
+        context = {'token': token, 'email': user.email}
         if user.role.role == "admin":
             return JsonResponse(context, status=201)
         return JsonResponse(context, status=201)
@@ -232,20 +230,16 @@ def fetchProjects(request):
         if not request.method == 'POST':
             return JsonResponse({'error': 'Only POST requests are allowed'}, status=405)
         serializer = TokenSerializer(data=request.data)
+        print(serializer)
         response = validate_user(serializer)  # Check user validation
-        if response is JsonResponse:  # If response is not None
+        if isinstance(response, JsonResponse):  # Check if response is JsonResponse
             return response
         user = response
-        print(user.role.id)
         if user.role.id > 1:
             projects = Projects.objects.all()
             serializedProjects = ProjectsSerializer(projects, many=True)
             return Response(serializedProjects.data, status=200)
-        # userProjects = UserProjectMapping.objects.filter(user=user).select_related('project')
-        # print(userProjects)
-        # projects = ProjectsSerializer(userProjects, many=True)
         projects = ProjectsSerializer(Projects.objects.filter(userprojectmapping__user=user),many=True)
-        print((projects.data))
         return Response(projects.data, status=200)
 
     except Exception as e:
@@ -253,22 +247,83 @@ def fetchProjects(request):
         print(e)
         return Response({'error': 'somthing went wrong'}, status=500)
     
+
+@api_view(["post"])
 def searchUser(request):
     try:
         if not request.method == 'POST':
             return JsonResponse({'error': 'Only POST requests are allowed'}, status=405)
         token = request.data["token"]
+        userFilter = request.data["filter"]
+        projectID = request.data["projectID"]
         response = validate_admin(TokenSerializer(data={"token": token}))
-        if response:  # If response is not None
+        if response:
             return response
+        # Retrieve the project object
+        project = Projects.objects.filter(id=projectID)[:1]
+        if(not project.exists()):
+           return JsonResponse({'error': 'The project cant be found'}, status=400)
         searchStr = request.data["searchString"]
-        serializer = Users.objects.filter(Q(role=1) | Q(email__icontains=searchStr))[:15]
-        return response(serializer.data, status=200)
+        serializer = queryUserByStr(searchStr, project, userFilter)
+        return Response(serializer.data, status=200)
     except Exception as e:
         traceback.print_exc()
         print(e)
         return Response({'error': 'somthing went wrong'}, status=500)
     
+@api_view(["post"])
+def updateUserMember(request):
+    try:
+        if not request.method == 'POST':
+            return JsonResponse({'error': 'Only POST requests are allowed'}, status=405)
+        token = request.data["token"]
+        projectID = request.data["projectID"]
+        userFilter = request.data["filter"]
+        response = validate_admin(TokenSerializer(data={"token": token}))
+        if response:
+            return response
+        try:
+            project = Projects.objects.get(id=projectID)
+        except Projects.DoesNotExist:
+            return JsonResponse({"error": "The project cannot be found"}, status=400)
+        email = request.data["email"]
+        user = Users.objects.filter(email=email)[0]
+        try:
+            UserProjectMapping.objects.get(user=user, project=project).delete()
+        except UserProjectMapping.DoesNotExist:
+            UserProjectMapping.objects.create(user=user, project=project)
+        searchStr = request.data["searchString"]
+        serializer = queryUserByStr(searchStr, project, userFilter)
+        return Response(serializer.data, status=200)
+    except Exception as e:
+        traceback.print_exc()
+        print(e)
+        return Response({'error': 'somthing went wrong'}, status=500)
+    
+def queryUserByStr(searchStr, project, filter="all"):
+    # Start by filtering users based on the search string and role
+    users = Users.objects.filter(email__icontains=searchStr, role=1)
+
+    # Annotate whether each user is in the project or not
+    users = users.annotate(isInProject = Exists(UserProjectMapping.objects.filter(user=OuterRef('pk'), project=project)))
+    print(filter)
+
+    # Apply additional filters based on the 'filter' parameter
+    if filter == 'In':
+        users = users.filter(isInProject=True)
+    elif filter == 'NotIn':
+        users = users.filter(isInProject=False)
+        print(users)
+    
+    # Order users by email length
+    users = users.annotate(email_length=dbFunc.Length('email')).order_by('email_length')[:9]
+
+    # Serialize users
+    serializer = UsersInProjectSerializer(users, many=True)
+
+    return serializer
+    
+@api_view(["post"])
 def searchStandard(request):
     try:
         if not request.method == 'POST':
@@ -278,9 +333,13 @@ def searchStandard(request):
         if response:  # If response is not None
             return response
         searchStr = request.data["searchString"]
-        users = Users.objects.filter(Q(role=1) | Q(email__icontains=searchStr))[:15]
-        serializer = UsersSerializer(users, many=True)
-        return response(serializer.data, status=200)
+        standards = Standard.objects.filter(name__name__icontains=searchStr)
+        # Annotate each standard with the length of the name
+        standards = standards.annotate(name_length=dbFunc.Length('name__name'))
+        # Sort the standards by the length of the name
+        standards = standards.order_by('name_length')[:9]
+        serializer = StandardSerializer(standards, many=True)
+        return Response(serializer.data, status=200)
     except Exception as e:
         traceback.print_exc()
         print(e)

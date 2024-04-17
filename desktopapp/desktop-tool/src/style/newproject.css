@@ -49,8 +49,13 @@
     grid-template-columns: auto auto auto auto auto auto;
   }
   .standards > div{
+    user-select: none;
     display:grid;
+    background-color: #525974ab;
+    padding:10px;
+    padding-top:40px;
     grid-template:
+    'header header'
     '. .'
     'select select';
     grid-gap: 3px;
@@ -59,6 +64,23 @@
   .standards > div > select{
     grid-area:select;
   }
+  .standards > div > h2{
+    grid-area: header;
+    margin: 0;
+  }
+
+
+  .standards >div.drag-over {
+    border: 2px dashed #333;
+}
+
+.drop-target {
+    width: 100%;
+    height: 50px;
+    background-color: #f0f0f0;
+    border: 2px dashed #333;
+    display: none; /* Initially hidden */
+}
 
   datalist {
     max-height: 200px;
@@ -89,7 +111,7 @@
         box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
         padding: 12px 16px;
         z-index: 1;
-        max-height: 200px; /* Maximum height for the dropdown */
+        max-height: 400px; /* Maximum height for the dropdown */
         overflow-y: auto; /* Enable vertical scrolling */
         overflow-x: hidden;
       }
@@ -97,7 +119,9 @@
       /* Style for the grid container */
       .grid-container {
         display: grid;
-        grid-template-columns: repeat(3, 1fr); /* 3 equal-width columns */
+        width: 560px;
+        min-height: 300px;
+        grid-template-columns: repeat(3, 1fr);
         gap: 10px; /* Gap between grid items */
       }
 
@@ -151,3 +175,7 @@
       .option-button:hover {
         background-color: #1e3eb2;
       }
+
+
+
+    
