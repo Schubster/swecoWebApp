@@ -91,3 +91,5 @@ typings/
 # Electron-Forge
 out/
 
+# django settings
+SwecoFileHandlerAPI\fileManager\fileManager\settings.py
