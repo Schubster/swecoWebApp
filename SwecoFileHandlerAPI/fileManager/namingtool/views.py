@@ -313,7 +313,6 @@ def queryUserByStr(searchStr, project, filter="all"):
         users = users.filter(isInProject=True)
     elif filter == 'NotIn':
         users = users.filter(isInProject=False)
-        print(users)
     
     # Order users by email length
     users = users.annotate(email_length=dbFunc.Length('email')).order_by('email_length')[:9]
