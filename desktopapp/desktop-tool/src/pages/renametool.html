@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../style/callout.css">
+    <link rel="stylesheet" href="../style/menu.css">
+    <link rel="stylesheet" href="../style/renametool.css">
+    <title>File Renamer</title>
+    <style>
+    </style>
+</head>
+
+<body>
+
+    <div class="header"></div>
+    <input type="checkbox" class="openSidebarMenu" id="openSidebarMenu">
+    <label for="openSidebarMenu" class="sidebarIconToggle">
+      <div class="spinner diagonal part-1"></div>
+      <div class="spinner horizontal"></div>
+      <div class="spinner diagonal part-2"></div>
+    </label>
+      <div id="sidebarMenu">
+          <ul class="sidebarMenuInner">
+              <li>SWECO <span>Web App</span></li>
+              <li><a href="https://www.sweco.se/" target="_blank"><span>Sweco Företagssida</span></a></li>
+              <li onclick='menuSend("newproject.html")'><a><span>Projektskapare</span></a></li>
+              <li onclick='menuSend("projectview.html")'><a><span>Projektvy</span></a></li>
+              <li onclick='menuSend("index.html")'><span>Logga ut</span></a></li>
+          </ul>
+      </div>
+
+
+
+
+
+    <div class="rename-content">
+        <div class="list-container">
+            <div class="dropdown">
+                <h1>header</h1>
+              <select class="dropdown-input" id="sorting">
+              </select>
+            </div>
+        </div>
+    <div id="file-list"></div>
+    <div id="drop-area">
+        <p>Drag & drop files here to rename</p>
+    </div>
+    <button class="changenamebtn">confirm new name</button>
+    </div>
+    <script src="../scripts/callout.js"></script>
+    <script src="../scripts/menu.js"></script>
+    <script type="module" src="../scripts/renametool.js"></script>
+</body>
+</html>

@@ -10,7 +10,7 @@ localStorage.clear();
 const inlogForm = document.getElementById('login-form');
 const storeDiv = document.getElementById('storage');
 const registerBtn = document.getElementById('button');
-
+const { shell } = require('electron')
 ipcRenderer.on('loginResponse', (event, responseData) => {
     // Update HTML elements to display the response data
     const responseContainer = document.getElementById('response-container');

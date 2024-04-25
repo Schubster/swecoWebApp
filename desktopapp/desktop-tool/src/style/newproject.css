@@ -2,6 +2,8 @@
   body{
     min-width:900px; 
     overflow-x: hidden;
+    text-align: center;
+    background-color: rgb(184, 193, 204)
   }
   .modal {
     display: none;
@@ -82,16 +84,39 @@
     display: none; /* Initially hidden */
 }
 
-  datalist {
-    max-height: 200px;
-    overflow-y: auto;
+.project-form{
+  margin: 20px auto auto;
+  min-height: 500px;
+  width: 80%;
+  padding: 30px;
+  background-color: #525974ab;
+  color: white;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3), 0 6px 20px 0 rgba(0, 0, 0, 0.2);
+}
+.selected-standards-container-div {
+  display: grid;
+  grid-template-columns:  repeat(3, 1fr);
+  gap: 20px;
+}
+
+.selected-standards-container {
+  min-width: 100px; /* Adjust the width as needed */
+  min-height: 100px; /* Adjust the height as needed */
+  background-color: rgb(36, 37, 48);
+  display: grid;
+  padding: 10px;
+  gap: 20px;
+}
+
+.selected-standards-container.selected {
+  background-color: #525974af;
 }
 /* Style for the custom dropdown */
       /* Style for the input container */
       .dropdown {
         position: relative;
-        display: flex;
-        margin-bottom: 10px; /* Add margin between dropdowns */
+        margin: 30px auto 30px; /* Add margin between dropdowns */
+        text-align: center;
       }
 
       /* Style for the dropdown input */
@@ -105,13 +130,14 @@
       /* Style for the dropdown content */
       .dropdown-content {
         display: none;
-        position: absolute;
+        margin: 20px auto 20px auto;
         top: 30px;
-        background-color: #f9f9f9;
+        width:fit-content;
+        background-color: rgba(36, 37, 48, 0);
         box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
         padding: 12px 16px;
         z-index: 1;
-        max-height: 400px; /* Maximum height for the dropdown */
+        max-height: 315px; /* Maximum height for the dropdown */
         overflow-y: auto; /* Enable vertical scrolling */
         overflow-x: hidden;
       }
@@ -127,7 +153,7 @@
 
       /* Style for the grid item */
       .grid-item {
-        background-color: #ddd;
+        background-color: #525974ab;
         padding: 10px;
         text-align: center;
         white-space: nowrap; /* Ensure content doesn't wrap */
@@ -138,22 +164,28 @@
 
       /* Style for grid item on hover */
       .grid-item:hover {
-        background-color: #bbb;
+        background-color: rgb(84, 85, 102)
       }
 
       /* Style for selected item */
       .selected-item {
-        background-color: #3e64ff;
+        display: flex;
+        justify-content: center; /* Center horizontally */
+        align-items: center; /* Center vertically */
+        background-color: #454f79;
         color: white;
-        padding: 5px 10px;
-        margin: 5px;
+        margin: auto;
+        width: 80%;
+        height: 20px;
+        padding: 10px;
+        text-align: center;
         border-radius: 5px;
         cursor: pointer;
-      }
+    }
 
       /* Style for selected item on hover */
       .selected-item:hover {
-        background-color: #1e3eb2;
+        background-color: #242a42;
       }
 
       .option-buttons{
@@ -162,7 +194,7 @@
 
       /* Style for option buttons */
       .option-button {
-        background-color: #3e64ff;
+        background-color: #454f79;
         color: white;
         padding: 5px 10px;
         margin: 5px;
@@ -173,8 +205,9 @@
 
       /* Style for option buttons on hover */
       .option-button:hover {
-        background-color: #1e3eb2;
+        background-color: #242a42;
       }
+
 
 
 

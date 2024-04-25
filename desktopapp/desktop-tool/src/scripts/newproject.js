@@ -40,8 +40,10 @@ const fetchData = { token: localStorage.getItem("token") };
 
 // custom dropdown
 let gridItemsData = [];
-let selectedStandards = [];
+let selectedStandards = {"modeller":[], "ritningar":[], "textdokument":[]};
 let debounceTimeout = null;
+let selectedType = null;
+let selectedTypeDiv = null
 
 // JavaScript to filter dropdown content based on input search query
 const inputField = document.querySelector(".dropdown-input");
@@ -49,8 +51,23 @@ const dropdownContent = document.querySelector(".dropdown-content");
 const gridContainer = document.querySelector(".grid-container");
 const dropdownContainer = document.querySelector(".dropdown");
 const selectedStandardsContainer = document.querySelector(
-  ".selected-standards-container"
+  ".selected-standards-container-div"
 );
+
+const containers = document.querySelectorAll('.selected-standards-container');
+    
+    containers.forEach(container => {
+        container.addEventListener('click', function() {
+          selectType(container)
+        });
+    });
+function selectType(container){
+  containers.forEach(c => c.classList.remove('selected'));
+  selectedType = container.dataset.type
+  selectedTypeDiv = container
+  container.classList.add('selected');
+}
+selectType(containers[0])
 
 inputField.addEventListener("input", () => search());
 inputField.addEventListener("focus", () => showDropdown());
@@ -62,9 +79,7 @@ addItems(gridItemsData);
 
 function showDropdown() {
   dropdownContent.style.display = "grid";
-  const inputHeight = inputField.offsetHeight;
-  const extraSpace = 5;
-  dropdownContent.style.top = inputHeight + extraSpace + "px";
+
 }
 
 function hideDropdown() {
@@ -133,24 +148,28 @@ function search() {
   }, 300);
 }
 
-function displaySelectedStandards() {
-  selectedStandardsContainer.innerHTML = "";
-  selectedStandards.forEach((item) => {
+function displaySelectedStandards(type, div) {
+  div.innerHTML = "";
+  selectedStandards[type].forEach((item) => {
     const standardItem = document.createElement("div");
     standardItem.classList.add("selected-item");
     standardItem.textContent = item.name;
     standardItem.dataset.index = item.id;
+    standardItem.dataset.type = type;
+
     standardItem.addEventListener("click", function () {
       const index = parseInt(this.dataset.index);
-      const selectedIndex = selectedStandards.findIndex(
+      console.log(this.dataset.type + this.dataset.index)
+      const selectedIndex = selectedStandards[this.dataset.type].findIndex(
         (item) => item.id === index
       );
       if (selectedIndex !== -1) {
-        selectedStandards.splice(selectedIndex, 1);
-        displaySelectedStandards();
+        selectedStandards[this.dataset.type].splice(selectedIndex, 1);
+        displaySelectedStandards(this.dataset.type, this.parentElement);
       }
+      console.log(selectedStandards)
     });
-    selectedStandardsContainer.appendChild(standardItem);
+    div.appendChild(standardItem);
   });
 }
 
@@ -162,9 +181,9 @@ function createOptionButton(text) {
 }
 
 function addStandard(index, name) {
-  if (!selectedStandards.find((item) => item.id === index)) {
-    selectedStandards.push({ id: index, name: name });
-    displaySelectedStandards();
+  if (!selectedStandards[selectedType].find((item) => item.id === index)) {
+    selectedStandards[selectedType].push({ id: index, name: name});
+    displaySelectedStandards(selectedType, selectedTypeDiv);
   }
 }
 
@@ -196,7 +215,7 @@ function attachEventListenerToSelect() {
 function attachEventListenerToButton(button, dict) {
   let select = dict;
   button.addEventListener("click", function () {
-    index = button.id.split("editdict")[1];
+    let index = button.id.split("editdict")[1];
     displayDictModal(select);
   });
 }
@@ -403,8 +422,8 @@ submitStandard.addEventListener("click", function () {
 
   // Get all select elements within standardsDiv
   var selects = standardsDiv.querySelectorAll("select");
-  if (selects.length < 4) {
-    showError("you have to have at least 4 dictionary of options");
+  if (selects.length < 1) {
+    showError("you have to have at least 1 dictionary of options");
     return;
   }
 
@@ -495,7 +514,10 @@ form.addEventListener("submit", (event) => {
   const formDataObject = {};
 
   formDataObject["name"] = formData.get("project_name");
-  formDataObject["standardID"] = selectedStandards.map((item) => item.id);
+  formDataObject["standards"] = Object.entries(selectedStandards).reduce((acc, [key, value]) => {
+    acc[key] = value.map(obj => obj.id);
+    return acc;
+}, {});;
   formDataObject["token"] = localStorage.getItem("token");
   console.log(formDataObject);
   ipcRenderer.send(

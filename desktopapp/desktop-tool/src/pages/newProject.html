@@ -27,13 +27,20 @@
         </ul>
     </div>
 
-<form id="project_form" action="" method="post">
+<form class="project-form" id="project_form" action="" method="post">
   
   <label for="project_name">Project Name:</label><br>
   <input type="text" id="project_name" name="project_name" required><br><br>
   <label for="standard">Select Standards:</label><br>
   
-  <div class="selected-standards-container"></div>
+  <div class="selected-standards-container-div">
+    <h2>modeller</h2><h2>ritningar</h2><h2>textdokument</h2>
+    <div data-type="modeller" class="selected-standards-container"></div>
+    
+    <div data-type="ritningar" class="selected-standards-container"></div>
+    
+    <div data-type="textdokument" class="selected-standards-container"></div>
+  </div>
   <div class="dropdown">
     <input class="dropdown-input" type="text" placeholder="Type to search" />
     <div class="dropdown-content">

@@ -1,0 +1,83 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f0f0f0;
+}
+
+#drop-area {
+    width: 300px;
+    height: 200px;
+    border: 2px dashed #ccc;
+    border-radius: 5px;
+    display: flex;
+    margin: auto;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+#file-list {
+    margin-top: 20px;
+}
+
+.file-item {
+    margin-bottom: 5px;
+}
+.rename-content{
+    display: grid;
+    grid-template-areas: 
+    '.'
+    '.';
+}
+
+.changenamebtn{
+    padding: 8px 16px;
+    border: none;
+    width: 100px;
+    height: 50px;
+    margin:auto;
+    border-radius: 4px;
+    color: #000000;
+    background-color: rgb(78, 129, 238);
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+
+  .dropdown {
+    margin-top: 20px;
+    display:grid;
+    padding:10px;
+    grid-template-areas:
+    'header'
+    'select';
+    grid-gap: 3px;
+    margin:10px;
+    text-align: center;
+  }
+
+  .dropdown > h1{
+    grid-area: header;
+  }
+
+  .dropdown-select {
+    padding: 8px;
+    font-size: 16px;
+  }
+
+  .list-container {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .dropdown-input {
+    padding: 10px 30px 10px 20px; /* Increased padding to accommodate the arrow */
+    width: 200px; /* Set the width of the input */
+    margin: 0 auto 0 auto;
+    grid-area: input;
+  }

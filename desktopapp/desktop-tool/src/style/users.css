@@ -29,7 +29,7 @@
   }
 
   .styled-list li {
-    background-color: #ffffff;
+    background-color: #ffffff41;
     padding: 10px 10px 10px 20px;
     margin-bottom: 5px;
     border-radius: 5px;
@@ -40,7 +40,7 @@
   }
 
   .styled-list li:nth-child(odd) {
-    background-color: #f0f0f0;
+    background-color: #f0f0f041;
   }
 
   .button {

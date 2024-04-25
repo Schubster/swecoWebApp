@@ -1,4 +1,5 @@
 const fetchData = {"token" : localStorage.getItem("token")}
+localStorage.removeItem("project")
 ipcRenderer.send('apiRequest', fetchData, "http://127.0.0.1:8000/api/fetchprojects", "projectsResponse");
 
 projectContainer = document.getElementById("project-container")
@@ -19,49 +20,8 @@ ipcRenderer.on('projectsResponse', (event, responseData) => {
       projectStandard.innerHTML = "Standards: " + standards
 
       projectDiv.addEventListener("click", () => {
-        // Create and display the overlay
-        let overlay = document.createElement("div")
-        overlay.className = "overlay"
-        
-        // Create and display the box
-        let box = document.createElement("div")
-        box.className = "project-box"
-        box.innerHTML = `
-          <div class="box-header">
-            <h1 class="module">${project.name}</h1>
-            <button class="close-btn">×</button>
-          </div>
-          <div class="box-content">
-            <p>Standards: ${standards}</p>
-
-          </div>
-          <div class="box-buttons">
-            <button class="add-user-btn button">Användare</button>
-            <button class="add-tool-btn button">Redskap</button>
-          </div>
-        `
-        overlay.appendChild(box)
-        document.body.appendChild(overlay)
-
-        // Close the box when the close button is clicked
-        const closeBtn = box.querySelector(".close-btn")
-        closeBtn.addEventListener("click", () => {
-          document.body.removeChild(overlay)
-        })
-
-        // Add functionality to buttons
-        const addUserBtn = box.querySelector(".add-user-btn")
-        addUserBtn.addEventListener("click", () => {
-            localStorage.setItem("currentProjectId", project.id);
-            ipcRenderer.send('load-page', 'users.html');
-          
-        })
-
-        const addToolBtn = box.querySelector(".add-tool-btn")
-        addToolBtn.addEventListener("click", () => {
-          // Add your logic here for adding tools
-          console.log("Add tool button clicked")
-        })
+        localStorage.setItem("currentProjectId", project.id)
+        ipcRenderer.send('load-page', "project.html");
       })
 
       projectDiv.appendChild(projectHeader)

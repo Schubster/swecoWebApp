@@ -3,15 +3,29 @@ from .models import Names, Roles, Users, Projects, Standard, OptionDictMapping, 
 from django.contrib.auth.hashers import make_password
 
 
+class StandardTypeSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    type = serializers.CharField()
+
+class DynamicTypeListField(serializers.ListField):
+    def to_representation(self, data):
+        print(data)
+        return [{'id': item['id'], 'type': self.field_name} for item in data]
+
+    def to_internal_value(self, data):
+        print(data)
+        return [{'id': item['id'], 'type': item['type']} for item in data]
+
 class ProjectsSerializer(serializers.ModelSerializer):
     name = serializers.CharField(source='name.name')
     id = serializers.IntegerField(required=False)
     standardID = serializers.ListField(child = serializers.IntegerField(), required=False)
+    standards = serializers.DictField(required=False)
     standardName = serializers.SerializerMethodField(required=False)
 
     class Meta:
         model = Projects
-        fields = ['id', 'name', 'standardID', 'standardName']
+        fields = ['id', 'name', 'standardID', 'standardName', 'standards']
 
     def get_name(self, obj):
         return obj.name.name if obj.name else None

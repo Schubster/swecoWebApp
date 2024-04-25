@@ -148,7 +148,7 @@ input[type=checkbox]:checked ~ .sidebarIconToggle > .diagonal.part-2 {
 
 @import url('https://fonts.googleapis.com/css?family=Varela+Round');
 body, html {
-    background-color: lightgray;
+    background-color: rgb(184, 193, 204);
     height: 100%;
     margin: 0;
     /* display: flex; */

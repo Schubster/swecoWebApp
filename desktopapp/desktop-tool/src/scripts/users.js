@@ -5,6 +5,7 @@ const fetchData = {
   projectID: localStorage.getItem("currentProjectId"),
 };
 
+
 // custom dropdown
 let gridItemsData = [];
 let currentProjectId = localStorage.getItem("currentProjectId");
@@ -19,6 +20,15 @@ const filter = document.getElementById("filter");
 inputField.addEventListener("input", () => search());
 filter.addEventListener("change", () => search());
 
+    fetchData.searchString = "";
+    fetchData.filter = filter.value
+    ipcRenderer.send(
+      "apiRequest",
+      fetchData,
+      "http://127.0.0.1:8000/api/users/search",
+      "usersResponse"
+    );
+    
 addItems(gridItemsData);
 
 function addItems(dataList) {
@@ -59,12 +69,11 @@ function search() {
   clearTimeout(debounceTimeout);
   debounceTimeout = setTimeout(() => {
     var query = inputField.value.toLowerCase().trim();
-    const searchData = fetchData;
-    searchData.searchString = query;
-    searchData.filter = filter.value
+    fetchData.searchString = query;
+    fetchData.filter = filter.value
     ipcRenderer.send(
       "apiRequest",
-      searchData,
+      fetchData,
       "http://127.0.0.1:8000/api/users/search",
       "usersResponse"
     );

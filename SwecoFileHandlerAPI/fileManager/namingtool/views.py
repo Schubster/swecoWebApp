@@ -1,53 +1,40 @@
-from django.shortcuts import render
+from pyexpat.errors import messages
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse, reverse_lazy
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from .models import (Users, Names, Projects, UserProjectMapping, Dictionary, Options,
-                    OptionDictMapping, Standard, StandardDictMapping, StandardProjectMapping, )
+from django.conf import settings
+from django.views.generic import TemplateView
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+from django.contrib.auth.hashers import make_password
+from .models import (Users, Names, Projects, Type, UserProjectMapping, Dictionary, Options,
+                    OptionDictMapping, Standard, StandardDictMapping, StandardProjectMapping, BlacklistedToken)
 from .serializer import (UsersSerializer, ProjectsSerializer, DictsDataSerializer, StandardSerializer,
                          TokenSerializer, StandardDataSerializer, NewStandartSerializer, UsersInProjectSerializer)
-from django.http import JsonResponse
+from django.http import BadHeaderError, Http404, HttpResponse, HttpResponseRedirect, JsonResponse
 from django.db.models import Q, Case, When, BooleanField, Exists, OuterRef
 import django.db.models.functions as dbFunc
 from django.middleware.csrf import get_token
 from django.views.decorators.csrf import csrf_protect
 from datetime import datetime, timedelta
 from django.conf import settings
-from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import check_password
-from django.contrib.auth.hashers import make_password
-from .forms import RegisterForm, DictionaryForm
+from .forms import PasswordResetRequestForm, NewPasswordForm
+
 import traceback
-import json
+from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_bytes
 import jwt
-from rest_framework.decorators import parser_classes
-from rest_framework.parsers import JSONParser
+
 
 
 # Create your views here.
-@api_view(['GET'])
-def getData(request):
-    app = Users.objects.all()
-    serializer = UsersSerializer(app, many=True)
-    return Response(serializer.data)
 
 
-@api_view(['POST'])
-def postUser(request):
-    serializer = UsersSerializer(data=request.data)
-    if serializer.is_valid():
-            # Data is valid, save it to the database
-        serializer.save()
-        print(serializer)
-        return Response(serializer.data, status=201)
-    else:
-            # Data is invalid, return validation errors
-        return Response(serializer.errors, status=400)
 
-@api_view(['GET'])
-def getUsers(request):
-    users = Users.objects.all()
-    serializer = UsersSerializer(users, many=True)
-    return Response(serializer.data)
+
 
 
 @csrf_protect
@@ -67,7 +54,7 @@ def loginAPI(request):
             return JsonResponse({'error': 'Invalid credentials'}, status=400)
 
             # Assuming you have a function to generate JWT tokens securely
-        token = generate_token(user.pk)
+        token = generate_token(user.pk, timedelta(days=1))
         context = {'token': token, 'email': user.email}
         if user.role.role == "admin":
             return JsonResponse(context, status=201)
@@ -87,6 +74,8 @@ def registerAPI(request):
     if serializer.is_valid():
         print("se:", serializer.validated_data)
         email = serializer.validated_data['email']
+
+
         if(Users.objects.filter(email = email).exists()):
             return JsonResponse({'error': 'email in use'}, status=400)
         
@@ -105,7 +94,7 @@ def addNewDictionaryAPI(request):
         print(request.data)
         token = request.data["token"]
         response = validate_admin(TokenSerializer(data={"token": token}))  # Check user validation
-        if response:  # If response is not None
+        if not isinstance(response, Users):  # If response is not an instance of Users
             return response
         serializer = NewStandartSerializer(data=request.data)
         if serializer.is_valid():
@@ -163,21 +152,21 @@ def fetchStandards(request):
             return JsonResponse({'error': 'Only POST requests are allowed'}, status=405)
         data = TokenSerializer(data=request.data)
         response = validate_admin(data)  # Check user validation
-        if response:  # If response is not None
+        if not isinstance(response, Users):  # If response is not an instance of Users
             return response
         if "standard_id" in data.validated_data:
             standard_id = data.validated_data["standard_id"]
             standard = Standard.objects.filter(id = standard_id)[0]
             serializer = StandardDataSerializer(standard)
             return Response(serializer.data)
-        standards = Standard.objects.all()
+        standards = Standard.objects.all()[:21]
         serializer = StandardSerializer(standards, many=True)  # Serialize queryset
         return Response(serializer.data)
 
     except Exception as e:
         traceback.print_exc()
         print(e)
-        return Response({'error': 'somthing went wrong'}, status=500)
+        return JsonResponse({'error': 'somthing went wrong'}, status=500)
     
 
 @api_view(['POST'])
@@ -190,7 +179,7 @@ def addNewProject(request):
             return JsonResponse({'error': 'session token required'}, status=400)
         token = request.data["token"]
         response = validate_admin(TokenSerializer(data={"token": token}))
-        if response:  # If response is not None
+        if not isinstance(response, Users):  # If response is not an instance of Users
             return response
         print(request.data)
         serializer = ProjectsSerializer(data=request.data)
@@ -198,25 +187,26 @@ def addNewProject(request):
             return JsonResponse({'error': serializer.errors}, status=400)
         
         projectNameStr = serializer.validated_data.get("name").get("name")
-        standardsID = serializer.validated_data["standardID"]
-        print(standardsID)
-        standards = Standard.objects.filter(id__in=standardsID) 
-        projectName,_ = Names.objects.get_or_create(name=projectNameStr)
-        if Projects.objects.filter(name=projectName.id).exists():
+        standardsData = serializer.validated_data["standards"]
+        standards = {type:  Standard.objects.filter(id__in=standardList) for type, standardList in standardsData.items()}
+        print(standards)
+        
+        # standards = Standard.objects.filter(id__in=map(lambda stand: stand["id"], *standardsData)) 
+
+        projectName,existed = Names.objects.get_or_create(name=projectNameStr)
+        if not existed:
             return JsonResponse({'error': 'a project with that name already exists'}, status=400)
-        if len(standardsID) > len(standards):
+        print("compare: ", [([standard.id for standard in standards.get(type)], list) for type, list in standardsData.items()])
+        if not all([sorted([standard.id for standard in standards.get(type)]) == sorted(list) for type, list in standardsData.items()]):
              return JsonResponse({'error': 'the selected standards cant be found'}, status=400)
 
-        newProject = Projects.objects.create(name=projectName)
-        mappings = []
-        for standard in standards:
-            mapping = StandardProjectMapping(project=newProject, standard=standard)
-            mappings.append(mapping)
-    
+        newProject = Projects(name=projectName)
+        mappings = [StandardProjectMapping(project=newProject,tandard=standard,type=Type.objects.get(type=type)) for type, standard_list in standards.items() for standard in standard_list]
+        print(mappings)
         # Bulk create the mappings
-        StandardProjectMapping.objects.bulk_create(mappings)
         newProject.save()
-
+        StandardProjectMapping.objects.bulk_create(mappings)
+        
         return JsonResponse({'response': 'project created successfuly'}, status=201)
         
     except Exception as e:
@@ -232,7 +222,7 @@ def fetchProjects(request):
         serializer = TokenSerializer(data=request.data)
         print(serializer)
         response = validate_user(serializer)  # Check user validation
-        if isinstance(response, JsonResponse):  # Check if response is JsonResponse
+        if not isinstance(response, Users):  # If response is not an instance of Users
             return response
         user = response
         if user.role.id > 1:
@@ -257,7 +247,7 @@ def searchUser(request):
         userFilter = request.data["filter"]
         projectID = request.data["projectID"]
         response = validate_admin(TokenSerializer(data={"token": token}))
-        if response:
+        if not isinstance(response, Users):  # If response is not an instance of Users
             return response
         # Retrieve the project object
         project = Projects.objects.filter(id=projectID)[:1]
@@ -280,7 +270,7 @@ def updateUserMember(request):
         projectID = request.data["projectID"]
         userFilter = request.data["filter"]
         response = validate_admin(TokenSerializer(data={"token": token}))
-        if response:
+        if not isinstance(response, Users):  # If response is not an instance of Users
             return response
         try:
             project = Projects.objects.get(id=projectID)
@@ -329,14 +319,14 @@ def searchStandard(request):
             return JsonResponse({'error': 'Only POST requests are allowed'}, status=405)
         token = request.data["token"]
         response = validate_admin(TokenSerializer(data={"token": token}))
-        if response:  # If response is not None
+        if not isinstance(response, Users):  # If response is not an instance of Users
             return response
         searchStr = request.data["searchString"]
         standards = Standard.objects.filter(name__name__icontains=searchStr)
         # Annotate each standard with the length of the name
         standards = standards.annotate(name_length=dbFunc.Length('name__name'))
         # Sort the standards by the length of the name
-        standards = standards.order_by('name_length')[:9]
+        standards = standards.order_by('name_length')[:21]
         serializer = StandardSerializer(standards, many=True)
         return Response(serializer.data, status=200)
     except Exception as e:
@@ -346,31 +336,151 @@ def searchStandard(request):
     
 
 
+def password_reset_request(request):
+    context={}
+    if request.method == "POST":
+        password_reset_form = PasswordResetRequestForm(request.POST)
+        if password_reset_form.is_valid():
+            data = password_reset_form.cleaned_data['email']
+            associated_users = Users.objects.filter(Q(email=data))
+            if associated_users.exists():
+                user = associated_users[0]
+                # Generate a token for the user
+                token = generate_token(user.id, timedelta(minutes=30))
+                # Construct the reset password URL with the token
+                reset_url = reverse('password_reset_confirm', kwargs={'token': token})
+                reset_url = request.build_absolute_uri(reset_url)
+                
+                subject = "Password Reset Requested"
+                html_message = render_to_string('password_reset_email.html', {'reset_url': reset_url})
+                plain_message = strip_tags(html_message)
+                email_from = settings.EMAIL_HOST_USER
+                recipient_list = [user.email]
+                
+                try:
+                    send_mail(subject, plain_message, email_from, recipient_list, html_message=html_message)
+                    return redirect("done/")
+                except BadHeaderError:
+                    context["error"] = "could not send email"
+            else:
+                context["error"] = "that email could not be link with any current users"
+    password_reset_form = PasswordResetRequestForm()
+    context["password_reset_form"] = password_reset_form
+    return render(request=request, template_name="password_reset_request.html",
+                  context=context)
+
+# class CustomPasswordResetConfirmView(auth_views.PasswordResetConfirmView):
+#     form_class = SetPasswordForm
+#     post_reset_login = False
+#     post_reset_login_backend = None
+#     reset_url_token = "set-password"
+#     success_url = reverse_lazy("password_reset_complete")
+#     template_name = "password_reset_confirm.html"
+#     title = ("Enter new password")
+
+#     def dispatch(self, request, *args, **kwargs):
+#         if "token" not in kwargs:
+#             raise Http404("Token not provided")
+
+#         # Decode the token and get the user ID
+#         self.session_token = kwargs["token"]
+#         print("kwargs:",kwargs)
+#         print("request:", request.data)
+#         try:
+#             user_id = check_token_user(token)
+#             self.validlink = True
+#         except Exception as e:
+#             # Handle invalid token
+#             self.validlink = False
+#             raise Http404("Invalid Token")
+
+#         # Check if the user exists
+#         try:
+#             self.user = Users.objects.get(id=user_id)
+#             return super().dispatch(*args, **kwargs)
+#         except Users.DoesNotExist:
+#             raise Http404("User not found")
+
+#         # Perform your custom logic here if needed
+#         return self.render_to_response(self.get_context_data())
+    
+class CustomPasswordResetConfirmView(TemplateView):
+    complete = 'password_reset_complete.html'
+    reset = 'password_reset.html'
+    resetForm = NewPasswordForm
+    def get(self, request, token):
+        try:
+            self.sessiontoken = token
+            user_id = check_token_user(token)
+            user = get_object_or_404(Users, pk=user_id)
+            return render(request, self.reset, {'form': self.resetForm})
+        except jwt.ExpiredSignatureError as e:
+            return render(request, self.reset, {'error': "session expired"})
+        except jwt.InvalidTokenError as e:
+            # Handle invalid tokens
+            return render(request, self.reset, {'error': "invalid session token"})
+        except Exception as e:
+            # Handle invalid token
+            return render(request, self.reset, {'error': "somthing went wrong"})
+    def post(self, request, token):
+        context = {"form": self.resetForm}
+
+        try:
+            form = self.resetForm(request.POST)
+
+            if form.is_valid():
+                newPassword = form.cleaned_data["newPassword"]
+                confirmPassword = form.cleaned_data["confirmPassword"]
+                
+                if newPassword != confirmPassword:
+                    context["error"] = "The passwords did not match"
+                    return render(request, self.reset, context=context, status=400)
+                
+                user = get_object_or_404(Users, pk=check_token_user(token))
+                hashed_password = make_password(newPassword)
+                user.password = hashed_password
+                user.save()
+                
+                # Invalidate the token
+                BlacklistedToken.objects.create(token=token)
+
+                return render(request, self.complete)
+        except jwt.ExpiredSignatureError as e:
+            return render(request, self.reset, {'error': "Session expired"}, status=400)
+        except jwt.InvalidTokenError as e:
+            return render(request, self.reset, {'error': "Invalid session token"}, status=400)
+        except Exception as e:
+            raise Http404("Something went wrong")
+
+        return render(request, self.reset, {'error': "Something went wrong"}, status=500)
+        
+    
+
+
 def validate_user(data):
         if not data.is_valid():
             return JsonResponse({'error': 'invalid data format'}, status=400)
-        user_id = check_token_user(data.validated_data["token"])
-        if not user_id:
-            return JsonResponse({'error': 'invalid token'}, status=400)
-        if not Users.objects.filter(id = user_id).exists():
-            return JsonResponse({'error': 'login session expired'}, status=400)
-        return Users.objects.get(id = user_id)
+        try:
+            user_id = check_token_user(data.validated_data["token"])
+            return Users.objects.get(id = user_id)
+        except Exception as e:
+            return JsonResponse({'error': e})
         
 def validate_admin(data):
         if not data.is_valid():
             return JsonResponse({'error': 'invalid data format'}, status=400)
-        user_id = check_token_user(data.validated_data["token"])
-        if not user_id:
-            return JsonResponse({'error': 'invalid token'}, status=400)
-        if not Users.objects.filter(id = user_id).exists():
-            return JsonResponse({'error': 'login session expired'}, status=400)
-        if Users.objects.filter(id = user_id)[0].role.id < 2:
-            return JsonResponse({'error': 'invalid user permissions'}, status=400)
+        try:
+            user_id = check_token_user(data.validated_data["token"])
+            if Users.objects.filter(id = user_id)[0].role.id < 2:
+                return JsonResponse({'error': 'invalid user permissions'}, status=400)
+            return Users.objects.get(id = user_id)
+        except Exception as e:
+            return JsonResponse({'error': e})
 
-def generate_token(user_id):
+def generate_token(user_id, time):
     payload = {
         'user_id': user_id,
-        'exp': datetime.utcnow() + timedelta(days=1),  # Token expiry time
+        'exp': datetime.utcnow() + time,  # Token expiry time
         'iat': datetime.utcnow()  # Issued at
     }
     token = jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
@@ -382,16 +492,19 @@ def check_token_user(token):
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
         # Extract the user ID from the payload
         user_id = payload['user_id']
+
+        if BlacklistedToken.objects.filter(token=token).exists():
+            raise jwt.InvalidTokenError("Token is blacklisted")
         # Return the user ID
         return user_id
-    except jwt.ExpiredSignatureError:
+    except jwt.ExpiredSignatureError as e:
         # Handle expired tokens
-        print('Token expired')
-        return None
-    except jwt.InvalidTokenError:
+        print('Token expired:', e)
+        raise e
+    except jwt.InvalidTokenError as e:
         # Handle invalid tokens
-        print('Invalid token')
-        return None
+        print('Invalid token:', e)
+        raise e
 
 
 def csrf_token_endpoint(request):
