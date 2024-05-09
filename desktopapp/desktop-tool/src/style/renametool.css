@@ -1,38 +1,309 @@
-body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    background-color: #f0f0f0;
-}
-
-#drop-area {
-    width: 300px;
-    height: 200px;
-    border: 2px dashed #ccc;
-    border-radius: 5px;
-    display: flex;
-    margin: auto;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-}
-
-#file-list {
-    margin-top: 20px;
-}
-
-.file-item {
-    margin-bottom: 5px;
-}
 .rename-content{
-    display: grid;
+    height: 100%;
+    display: none;
     grid-template-areas: 
-    '.'
-    '.';
+    'explorer tab tab tab'
+    'explorer option option option'
+    'explorer name name name';
+    grid-template-columns: 230px repeat(3, calc((100% - 230px) / 3));
+    grid-template-rows: 54px auto 140px;
+    background-color: rgb(36, 37, 48);
+    color: white;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3), 0 6px 20px 0 rgba(0, 0, 0, 0.2);
+}
+.file-explorer {
+  position: relative;
+  grid-area: explorer;
+  background-color: rgba(255, 255, 255, 0.062);
+  width: auto;
+  height: 100%;
+  font-size: 13px;
+  color: #dddddd;
+  height: 100%; /* Ensure the explorer takes full height */
+  padding-left: 10px;
+  overflow-x: hidden;
+  overflow-y: scroll; /* Enable vertical scrolling */
+  user-select: none;
+}
+.file-explorer.empty{
+  text-align: center;
+}
+/* Custom scrollbar */
+.file-explorer::-webkit-scrollbar {
+  width: 10px; /* Width of the scrollbar */
+  z-index: 3;
+}
+
+.file-explorer::-webkit-scrollbar-track {
+  background: transparent; /* Background color of the scrollbar track */
+  z-index: 3;
+}
+
+.file-explorer::-webkit-scrollbar-thumb {
+  background-color: #63656e; /* Color of the scrollbar thumb */
+  border-radius: 4px; /* Rounded corners */
+  cursor:default;
+  z-index: 3;
+}
+
+/* Hide scrollbar when not hovering over the file explorer */
+.file-explorer:not(:hover)::-webkit-scrollbar-thumb {
+  background-color: transparent;
+}
+
+.resize-handle {
+  position: fixed; /* Position relative to the viewport */
+  top: 0;
+  right: 0; /* Adjust to extend slightly beyond the file explorer */
+  bottom: 42px;
+  left:275px;
+  width: 8px; /* Width of the handle plus the extension */
+  height: auto; /* Allow height to stretch */
+  cursor: ew-resize;
+  background-color: transparent;
+  z-index: 2; /* Ensure it overlays other elements */
+}
+
+.folderDiv {
+  padding: 8px 0 8px 0;
+  overflow-x: hidden;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.folderDiv > p {
+  padding: 8px 0 8px 10px; /* Adjust the left padding to create indentation */
+  margin: 0;
+}
+
+
+.folderDiv > p:hover {
+  background-color: #ffffff63;
+}
+
+.folderDiv.open > p > .dropdown-icon {
+  transform: rotate(90deg); /* Rotate the dropdown icon when folder is open */
+}
+
+.folderDiv.open > div {
+display: none;
+}
+
+.folderDiv > div {
+  padding-left: 16px;
+}
+
+.fileDiv {
+  padding: 8px 0 8px 10px; /* Adjust the left padding to create indentation */
+  overflow-x: hidden;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.fileDiv > img{
+height: 14px;
+width: 14px;
+}
+.fileDiv.selected {
+  background-color: #ffffff56;
+}
+
+.fileDiv:hover {
+  background-color: #ffffff63;
+}
+.fileDiv.updated{
+  background-color:rgb(77, 128, 77);;
+}
+.rename-tabs{
+  grid-area: tab;
+  display: grid;
+  margin: 0;
+  left: 0;
+  width: 100%;
+  min-width: 380px;
+  grid-template-columns: auto auto auto;
+}
+
+.tooltab{
+  color: white;
+  background-color: #666b7ecb;
+  padding: 20px;
+  margin: 0;
+  height: 14px;
+  cursor: pointer;
+  border-radius: 0 0 10px 10px;
+  font-size: 20px;
+
+}
+.tooltab.selected{
+  background: none;
+  background-color: rgba(102, 104, 126, 0);
+}
+.rename-tabs > select{
+  width: 35%;
+  font-size: 16px;
+  padding: 7px;
+}
+.type-container{
+  display: none;
+  width: 100%;
+  height: 100%;
+  float: left;
+}
+.type-container.selected{
+  display: grid;
+  grid-template-columns: auto;
+  width: 100%;
+}
+
+.dropdown-container {
+    grid-area: option;
+    padding: 20px;
+    height: fit-content;
+    overflow-x: hidden;
+  }
+.standard-selector{
+  width: 100%;
+}
+.standard-container{
+  display: none;
+  position: relative;
+  margin-top: 30px;
+  min-height: 400px;
+  width: 100%;
+  overflow-x: scroll;
+  overflow-y: hidden;
+  justify-content: left;
+  transform:rotateX(180deg);
+  -ms-transform:rotateX(180deg); /* IE 9 */
+  -webkit-transform:rotateX(180deg); /* Safari and Chrome */
+}
+.standard-container.selected{
+  display: flex;
+}
+
+.standard-container::-webkit-scrollbar {
+  height: 5px; /* Width of the scrollbar */
+  z-index: 3;
+}
+
+.standard-container::-webkit-scrollbar-track {
+  background: transparent; /* Background color of the scrollbar track */
+  z-index: 3;
+}
+
+.standard-container::-webkit-scrollbar-thumb {
+  background-color: #63656e; /* Color of the scrollbar thumb */
+  border-radius: 4px; /* Rounded corners */
+  cursor:default;
+  z-index: 3;
+}
+
+/* Hide scrollbar when not hovering over the file explorer */
+.standard-container:not(:hover)::-webkit-scrollbar-thumb {
+  background-color: transparent;
+}
+
+
+.divider-header{
+padding-bottom: 49px;
+margin-left: auto;
+align-self: flex-end;
+}
+.standard-dropdown{
+  width: 100%;
+  padding: 7px;
+}
+
+.standard-selector{
+  height: 60px;
+  margin-bottom: 40px;
+}
+.dropdown{
+  user-select: none;
+  width: 100%;
+  margin: 8px;
+  /* min-width: 200px; */
+  transform:rotateX(180deg);
+  -ms-transform:rotateX(180deg); /* IE 9 */
+  -webkit-transform:rotateX(180deg); /* Safari and Chrome */
+}
+  .dropdown > h3{
+    width: 100%;
+    grid-area: header;
+    font-size: 19px;
+  }
+
+
+  .custom-dropdown {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    height: 25px;
+    background-color: white;
+    color: #000000;
+}
+.dropdown-selected-text{
+  margin: 0;
+  padding:5px 4px 5px 7px;
+  font-size: 13px;
+}
+
+
+.dropdown-options {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    min-width: 100%; /* Set a minimum width for the options */
+    max-height: 300px;
+    white-space: nowrap; /* Prevent line breaks */
+    overflow-y: auto;
+    z-index: 1;
+    display: none;
+    background-color: #fff;
+    border: 1px solid #000000;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.dropdown-option {
+  white-space: nowrap; /* Prevent text from wrapping */
+  display: grid; /* Use flexbox for layout */
+  grid-template-columns: auto auto;
+  gap:20px;
+  padding: 8px;
+}
+.option-key{
+  float: left;
+  padding:10px;
+  color: #000000;
+}
+
+.option-value {
+  text-align: right;
+  float: right;
+  padding:10px;
+  color: #4b4b4b;
+}
+.dropdown-option.selected{
+  background-color: #a0a0a0;
+}
+
+.dropdown-option:hover {
+    background-color: #a0a0a0;
+}
+
+.show-options {
+    display: block;
+}
+.new-name-container{
+  grid-area: name;
+  text-align: center;
+  display: block;
+}
+.demofield{
+  width: 50%;
+  margin: 0 25% 0 25%;
 }
 
 .changenamebtn{
@@ -40,44 +311,19 @@ body {
     border: none;
     width: 100px;
     height: 50px;
-    margin:auto;
+    margin-top: 10px;
     border-radius: 4px;
     color: #000000;
     background-color: rgb(78, 129, 238);
     font-weight: bold;
     cursor: pointer;
   }
-
-
-  .dropdown {
-    margin-top: 20px;
-    display:grid;
-    padding:10px;
-    grid-template-areas:
-    'header'
-    'select';
-    grid-gap: 3px;
-    margin:10px;
-    text-align: center;
+  .standard-dropdown{
+    float: left;
+    width: 200px;
   }
 
-  .dropdown > h1{
-    grid-area: header;
-  }
 
-  .dropdown-select {
-    padding: 8px;
-    font-size: 16px;
-  }
 
-  .list-container {
-    max-width: 600px;
-    margin: 0 auto;
-  }
+  
 
-  .dropdown-input {
-    padding: 10px 30px 10px 20px; /* Increased padding to accommodate the arrow */
-    width: 200px; /* Set the width of the input */
-    margin: 0 auto 0 auto;
-    grid-area: input;
-  }

@@ -40,7 +40,7 @@ function addItems(dataList) {
       const listItem = document.createElement("li");
       listItem.innerHTML = `
           <span>${item.email}</span>
-          <button class="button ${type}"></i></button>
+          <button class="user-button ${type}"></i></button>
       `;
       list.appendChild(listItem);
       const button = listItem.querySelector("button");

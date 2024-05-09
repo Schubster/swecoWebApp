@@ -2,7 +2,7 @@
 {
     position: sticky;
     color: white;
-    background: linear-gradient(150deg,  #999898 0%, #222222 100%);
+    background: var(--gradientDark);
     float: right;
     margin-right: 20px;
     padding: 10px;
@@ -14,27 +14,31 @@
     background: none;
     background-color: rgb(36, 37, 48);
 }
-.view.selected{
+.tools.selected{
+    display:grid;
+}
+.user.selected, .edit.selected{
+    display: block;
+}
+.validation.selected{
     display: block;
 }
 .container > div {
     background-color: rgb(36, 37, 48);
     color: white;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3), 0 6px 20px 0 rgba(0, 0, 0, 0.2);
+    min-height: 600px;
+}
+.container{
+    height: calc(100vh - 160px);
 }
 .view{ 
     margin: 50px;
-    padding: 50px;
     background-color: rgb(36, 37, 48);
     display: none;
 }
-@import url('https://fonts.googleapis.com/css?family=Varela+Round');
-body, html {
-    background-color: black;
-    height: 100%;
-    margin: 0;
-    /* display: flex; */
-    justify-content: center;
-    overflow-x: hidden;
-    font-family: 'Varela Round', sans-serif;
-} 
+
+body{
+    overflow-y: hidden;
+    overflow-x: auto;
+}

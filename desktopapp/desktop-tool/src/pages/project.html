@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://kit.fontawesome.com/0ddcbcd5f1.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="../style/project.css">
     <link rel="stylesheet" href="../style/users.css">
+    <link rel="stylesheet" href="../style/renametool.css">
     <link rel="stylesheet" href="../style/menu.css">
     <link rel="stylesheet" href="../style/callout.css">
     <title>Tools Page</title>
@@ -32,15 +34,40 @@
         <div class="tab selected"data-container="tools">Redskap</div>
         <div class="tab"data-container="user">Användare</div>
         <div class="tab"data-container="validation">Validerare</div>
+        <div class="tab"data-container="edit">Edit</div>
     </div>
 
     <div class="container">
-        <div class="tools view selected">tool</div>
+        
+            <div class="tools view selected rename-content">
+                <div class="file-explorer empty" id="fileExplorer">
+                    <p class="empty-explorer-text">Drag & drop files here to rename</p>
+                <div class="resize-handle" id="resizeHandle"></div>
+                </div>
+                
+                <div class="rename-tabs">
+                    <div data-type="textdokument" class="tooltab selected">textdokument</div>
+                    <div data-type="modeller" class="tooltab">Modell</div>
+                    <div data-type="ritningar" class="tooltab">Ritning</div>
+                </div>
+                <div class="dropdown-container">
+                    <div data-type="textdokument" class="type-container textdokument selected">text</div>
+                    <div data-type="modeller" class="type-container modell">modell</div>
+                    <div data-type="ritningar" class="type-container ritning">ritning</div>
+                </div>
+
+                <div class="new-name-container">
+                    <input type="text" class="demofield" id="demofield" name="demofield" readonly >
+                    <button class="changenamebtn">confirm new name</button>
+                </div>
+            </div>
+        
 
         <div class="user view">
             <div class="list-container">
                 <div class="input-container">
                 <input class="dropdown-input" type="text" placeholder="Type to search" />
+                <button class="user-button green-button">Add</button>
                   <label for="sorting">Filter:</label>
                     <select class="dropdown-select" id="filter">
                       <option value="In">in project</option>
@@ -56,11 +83,14 @@
         </div>
 
         <div class="validation view">validate</div>
+
+        <div class="edit view">Edit</div>
     </div>
 
     <script src="../scripts/callout.js"></script>
     <script src="../scripts/menu.js"></script>
     <script src="../scripts/users.js"></script>
     <script src="../scripts/project.js"></script>
+    <script src="../scripts/renametool.js"></script>
 </body>
 </html>

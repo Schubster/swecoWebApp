@@ -24,7 +24,7 @@
     border: 1px solid #888;
     width: 80%;
     max-width: 900px;
-    height: 400px;
+    min-height: 400px;
     max-height: 80%;
     border-radius: 10px;
   }
@@ -44,18 +44,49 @@
     cursor: pointer;
   }
   .demofield{
-    width: 50%
+    width: 50%;
+  }
+  .demofield-label{
+    color: black;
   }
   .standards{
     display:grid;
+    overflow-x: scroll;
+    justify-content: left;
     grid-template-columns: auto auto auto auto auto auto;
   }
+  .standards::-webkit-scrollbar {
+    width: 10px; /* Width of the scrollbar */
+    z-index: 3;
+  }
+  
+  .standards::-webkit-scrollbar-track {
+    background: transparent; /* Background color of the scrollbar track */
+    z-index: 3;
+  }
+  
+  .standards::-webkit-scrollbar-thumb {
+    background-color: #63656e; /* Color of the scrollbar thumb */
+    border-radius: 4px; /* Rounded corners */
+    cursor:default;
+    z-index: 3;
+  }
+  
+  /* Hide scrollbar when not hovering over the file explorer */
+  .standards:not(:hover)::-webkit-scrollbar-thumb {
+    background-color: transparent;
+  }
+
+
+
+
   .standards > div{
     user-select: none;
     display:grid;
     background-color: #525974ab;
     padding:10px;
     padding-top:40px;
+    min-width: 160px;
     grid-template:
     'header header'
     '. .'
@@ -90,7 +121,7 @@
   width: 80%;
   padding: 30px;
   background-color: #525974ab;
-  color: white;
+  color: black;
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3), 0 6px 20px 0 rgba(0, 0, 0, 0.2);
 }
 .selected-standards-container-div {
@@ -207,8 +238,21 @@
       .option-button:hover {
         background-color: #242a42;
       }
-
-
+      .dividers {
+        display: flex;
+        justify-content: center; /* Horizontally center child elements */
+        align-items: center; /* Vertically center child elements */
+        margin: 30px 10px 40px 10px;
+      }
+      
+      .dividers > input {
+        align-items: center;
+        width: 15px;
+        height: 15px;
+        padding: 8px;
+        margin: 6px;
+        font-size: 19px;
+      }
 
 
     

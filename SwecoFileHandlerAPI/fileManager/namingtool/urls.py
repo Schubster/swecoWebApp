@@ -13,12 +13,13 @@ path('password_reset/done/', auth_views.PasswordResetDoneView.as_view(
     template_name='password_reset_done.html'), name='password_reset_done'),
 path('reset/done/', auth_views.PasswordResetCompleteView.as_view(
     template_name='password_reset_complete.html'), name='password_reset_complete'),
-path('api/addnewdictionary', views.addNewDictionaryAPI),
+path('api/addnewstandard', views.addnewstandard),
 path('api/fetchstandards', views.fetchStandards),
 path('api/standars/search', views.searchStandard),
 path('test', views.test),
 path('api/addnewproject', views.addNewProject),
 path('api/fetchprojects', views.fetchProjects),
+path('api/fetchAllProjectStandards', views.fetchAllProjectStandards),
 path('api/users/search', views.searchUser),
 path('api/users/update/member', views.updateUserMember)
 ]

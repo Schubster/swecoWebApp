@@ -3,13 +3,26 @@ const { ipcRenderer } = require("electron");
 // Usage examp
 
 if (!null) console.log("kos");
-
-var testStandardList = {
-  name: "placeholder",
-  id: "",
-};
-
 let draggedItem = null;
+var testStandardList = {
+  "name": "placeholder",
+  "id": -1,
+  "options": {
+    "typ1": "T1",
+    "typ2": "T2"
+  }
+}
+
+const emptyProject =
+  {
+    id: 0,
+    name: "",
+    standards_by_type: {
+      modeller: [{}],
+      ritningar: [{}],
+      textdokument: [{}],
+    },
+  };
 
 const defaultStandard = [
   { name: "Elprojektör", options: { placeholder: "P" } },
@@ -40,7 +53,7 @@ const fetchData = { token: localStorage.getItem("token") };
 
 // custom dropdown
 let gridItemsData = [];
-let selectedStandards = {"modeller":[], "ritningar":[], "textdokument":[]};
+let selectedStandards = { "modeller": [], "ritningar": [], "textdokument": [] };
 let debounceTimeout = null;
 let selectedType = null;
 let selectedTypeDiv = null
@@ -55,13 +68,13 @@ const selectedStandardsContainer = document.querySelector(
 );
 
 const containers = document.querySelectorAll('.selected-standards-container');
-    
-    containers.forEach(container => {
-        container.addEventListener('click', function() {
-          selectType(container)
-        });
-    });
-function selectType(container){
+
+containers.forEach(container => {
+  container.addEventListener('click', function () {
+    selectType(container)
+  });
+});
+function selectType(container) {
   containers.forEach(c => c.classList.remove('selected'));
   selectedType = container.dataset.type
   selectedTypeDiv = container
@@ -125,7 +138,7 @@ function addItems(dataList) {
     return gridItem;
   });
 
-  
+
   gridItems.forEach((item) => {
     gridContainer.appendChild(item);
   });
@@ -182,7 +195,7 @@ function createOptionButton(text) {
 
 function addStandard(index, name) {
   if (!selectedStandards[selectedType].find((item) => item.id === index)) {
-    selectedStandards[selectedType].push({ id: index, name: name});
+    selectedStandards[selectedType].push({ id: index, name: name });
     displaySelectedStandards(selectedType, selectedTypeDiv);
   }
 }
@@ -202,13 +215,7 @@ function editStandard(index, name) {
 function attachEventListenerToSelect() {
   var selects = standardsDiv.querySelectorAll("select");
   selects.forEach((select) => {
-    select.addEventListener("change", function () {
-      selects = standardsDiv.querySelectorAll("select");
-      demofield.value = "";
-      selects.forEach((item) => {
-        demofield.value += item.value;
-      });
-    });
+    select.addEventListener("change", getCurentName);
   });
 }
 
@@ -251,7 +258,6 @@ closeDictionaryModal.onclick = function () {
 
 function addNewDictionary(dictionaryData, name = "") {
   var dictionary = dictionaryData.options;
-  console.log(dictionary);
   var standards = document.getElementById("standards");
   var standardDiv = document.createElement("div");
   standardDiv.draggable = true; // Make the div draggable
@@ -326,6 +332,21 @@ function addNewDictionary(dictionaryData, name = "") {
       parent.insertBefore(draggedItem, this);
     }
   });
+
+}
+
+
+function createNewDivider(value = "") {
+  const input = document.createElement("input")
+  input.type = "text"
+  input.maxLength = 1
+  input.value = value
+  input.addEventListener("change", getCurentName)
+  return input
+}
+function getCurentName() {
+  demofield.value = "";
+  standardsDiv.querySelectorAll("select").forEach(select => demofield.value += select.value)
 }
 
 document.getElementById("add_new_dict").addEventListener("click", function () {
@@ -368,9 +389,9 @@ function displayDictModal(select) {
       opt.value = inputs[++i].value;
       select.appendChild(opt);
     }
-    if (dictionaryNameField.value != "")
-      select.name = dictionaryNameField.value;
-    else select.name = "dict";
+    select.parentElement.firstElementChild.innerHTML = name
+    select.dataset.name = name;
+    select.name = name;
     dictionaryModal.style.display = "none";
     standardModal.style.display = "block";
   });
@@ -415,10 +436,9 @@ submitStandard.addEventListener("click", function () {
     showError("Enter a name");
     return;
   }
-  var dictsData = {};
+  var standardData = { 'name': name };
 
-  dictsData.name = document.getElementById("standard_name").value;
-  dictsData.dict_data = [];
+  standardData.dict_data = [];
 
   // Get all select elements within standardsDiv
   var selects = standardsDiv.querySelectorAll("select");
@@ -426,6 +446,7 @@ submitStandard.addEventListener("click", function () {
     showError("you have to have at least 1 dictionary of options");
     return;
   }
+
 
   // Iterate over each select element
 
@@ -444,16 +465,18 @@ submitStandard.addEventListener("click", function () {
     });
 
     // Push the data object to the dicts array in dictsData
-    dictsData.dict_data.push(data);
+    standardData.dict_data.push(data);
+
+
   });
-  dictsData.token = localStorage.getItem("token");
-  console.log(JSON.stringify(dictsData));
-  ipcRenderer.send(
-    "apiRequest",
-    dictsData,
-    "http://127.0.0.1:8000/api/addnewdictionary",
-    "allStandardResponse"
-  );
+  standardData.token = localStorage.getItem("token");
+  console.log(JSON.stringify(standardData));
+  // ipcRenderer.send(
+  //   "apiRequest",
+  //   standardData,
+  //   "http://127.0.0.1:8000/api/addnewstandard",
+  //   "allStandardResponse"
+  // );
 });
 
 ipcRenderer.send(
@@ -474,10 +497,11 @@ ipcRenderer.on("allStandardResponse", (event, responseData) => {
 ipcRenderer.on("standardDictsResponse", (event, responseData) => {
   var response = JSON.parse(responseData);
   document.getElementById("standard_name").value = response.name;
-  updateStandardModal(response.dict_data);
+  updateStandardModal(response.dict_data)
 });
 
 function updateStandardModal(dictList) {
+  console.log(dictList)
   standardsDiv.innerHTML = "";
   const dropTarget = document.createElement("div");
   dropTarget.classList.add("drop-target");
@@ -505,6 +529,8 @@ function updateStandardModal(dictList) {
   dictList.forEach((dict) => {
     addNewDictionary(dict);
   });
+
+  getCurentName()
 }
 
 const form = document.getElementById("project_form");
@@ -517,7 +543,7 @@ form.addEventListener("submit", (event) => {
   formDataObject["standards"] = Object.entries(selectedStandards).reduce((acc, [key, value]) => {
     acc[key] = value.map(obj => obj.id);
     return acc;
-}, {});;
+  }, {});;
   formDataObject["token"] = localStorage.getItem("token");
   console.log(formDataObject);
   ipcRenderer.send(
