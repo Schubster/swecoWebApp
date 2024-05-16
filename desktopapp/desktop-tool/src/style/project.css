@@ -33,14 +33,12 @@ body, html {
     background-color: black;
     height: 100%;
     margin: 0;
-    /* display: flex; */
     justify-content: center;
     overflow-x: hidden;
     font-family: 'Varela Round', sans-serif;
 } 
 
 .tooltab{
-
     color: white;
     background: linear-gradient(150deg,  #999898 0%, #222222 100%);
     padding: 20px;
