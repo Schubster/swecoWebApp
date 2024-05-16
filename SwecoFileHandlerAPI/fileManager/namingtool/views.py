@@ -10,7 +10,7 @@ from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django.contrib.auth.hashers import make_password
-from .models import (Users, Names, Projects, Type, UserProjectMapping, Dictionary, Options, Dividers,
+from .models import (Users, Names, Projects, Type, UserProjectMapping, Dictionary, Options,
                     OptionDictMapping, Standard, StandardDictMapping, StandardProjectMapping, BlacklistedToken)
 from .serializer import (ProjectWithStandardsSerializer, UsersSerializer, ProjectsSerializer, DictsDataSerializer, StandardSerializer,
                          TokenSerializer, StandardDataSerializer, NewStandartSerializer, UsersInProjectSerializer)

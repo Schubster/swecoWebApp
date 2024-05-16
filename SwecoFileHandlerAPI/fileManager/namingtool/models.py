@@ -58,17 +58,10 @@ class Type(models.Model):
         managed = False
         db_table = 'type'
 
-class Dividers(models.Model):
-    divider_str = models.CharField(unique=True, max_length=45)
-
-    class Meta:
-        managed = False
-        db_table = 'dividers'
 
 class Standard(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.ForeignKey(Names, models.DO_NOTHING, blank=True, null=True)
-    divider = models.ForeignKey(Dividers, models.DO_NOTHING)
 
     class Meta:
         managed = False
