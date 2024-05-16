@@ -1,3 +1,9 @@
+:root {
+    --gradientDark: linear-gradient(10deg,  rgb(129, 131, 153) 0%, rgb(36, 37, 48) 80%);
+    --gradientDarkRev: linear-gradient(10deg,  rgb(36, 37, 48) 50%,rgb(129, 131, 153) 100%);
+    --gradientGray: linear-gradient(10deg, #999898 0%, #000000 180%);
+    --containerDark: rgb(36, 37, 48);
+  }
 .header {
     display: flex;
     justify-content: center; /* Horizontally centers the h1 within the .header */
@@ -5,7 +11,7 @@
     width: 100%;
     max-width: 100%;
     box-shadow: none;
-    background: linear-gradient(10deg, #999898 0%, #000000 180%);
+    background: var(--gradientDark);
     position: sticky;
     top:0;
     height: 60px!important;
@@ -43,7 +49,7 @@
     /* margin-top: 60px; */
     transform: translateX(-250px);
     transition: transform 250ms ease-in-out;
-    background: linear-gradient(180deg,  #999898 0%, #000000 100%);
+    background: var(--gradientDarkRev);
     z-index: 10;
 }
 .sidebarMenuInner{
@@ -148,7 +154,7 @@ input[type=checkbox]:checked ~ .sidebarIconToggle > .diagonal.part-2 {
 
 @import url('https://fonts.googleapis.com/css?family=Varela+Round');
 body, html {
-    background-color: rgb(184, 193, 204);
+    background-color: rgb(153, 163, 175);
     height: 100%;
     margin: 0;
     /* display: flex; */
