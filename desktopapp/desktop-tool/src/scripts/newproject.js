@@ -5,9 +5,25 @@ const { ipcRenderer } = require("electron");
 if (!null) console.log("kos");
 
 var testStandardList = {
-  name: "placeholder",
-  id: "",
-};
+  "name": "placeholder",
+  "id": -1,
+  "options": {
+    "typ1": "T1",
+    "typ2": "T2"
+  }
+}
+
+const emptyProject = [
+  {
+    id: 0,
+    name: "Project1",
+    standards_by_type: {
+      modeller: [{}],
+      ritningar: [{}],
+      textdokument: [{}],
+    },
+  },
+];
 
 let draggedItem = null;
 
@@ -40,8 +56,10 @@ const fetchData = { token: localStorage.getItem("token") };
 
 // custom dropdown
 let gridItemsData = [];
-let selectedStandards = [];
+let selectedStandards = { "modeller": [], "ritningar": [], "textdokument": [] };
 let debounceTimeout = null;
+let selectedType = null;
+let selectedTypeDiv = null
 
 // JavaScript to filter dropdown content based on input search query
 const inputField = document.querySelector(".dropdown-input");
@@ -49,8 +67,23 @@ const dropdownContent = document.querySelector(".dropdown-content");
 const gridContainer = document.querySelector(".grid-container");
 const dropdownContainer = document.querySelector(".dropdown");
 const selectedStandardsContainer = document.querySelector(
-  ".selected-standards-container"
+  ".selected-standards-container-div"
 );
+
+const containers = document.querySelectorAll('.selected-standards-container');
+
+containers.forEach(container => {
+  container.addEventListener('click', function () {
+    selectType(container)
+  });
+});
+function selectType(container) {
+  containers.forEach(c => c.classList.remove('selected'));
+  selectedType = container.dataset.type
+  selectedTypeDiv = container
+  container.classList.add('selected');
+}
+selectType(containers[0])
 
 inputField.addEventListener("input", () => search());
 inputField.addEventListener("focus", () => showDropdown());
@@ -62,9 +95,7 @@ addItems(gridItemsData);
 
 function showDropdown() {
   dropdownContent.style.display = "grid";
-  const inputHeight = inputField.offsetHeight;
-  const extraSpace = 5;
-  dropdownContent.style.top = inputHeight + extraSpace + "px";
+
 }
 
 function hideDropdown() {
@@ -110,7 +141,7 @@ function addItems(dataList) {
     return gridItem;
   });
 
-  
+
   gridItems.forEach((item) => {
     gridContainer.appendChild(item);
   });
@@ -125,7 +156,7 @@ function search() {
     ipcRenderer.send(
       "apiRequest",
       searchData,
-      "http://127.0.0.1:8000/api/standars/search",
+      "http://127.0.0.1:8000/api/standards/search",
       "allStandardResponse"
     );
 
@@ -133,24 +164,28 @@ function search() {
   }, 300);
 }
 
-function displaySelectedStandards() {
-  selectedStandardsContainer.innerHTML = "";
-  selectedStandards.forEach((item) => {
+function displaySelectedStandards(type, div) {
+  div.innerHTML = "";
+  selectedStandards[type].forEach((item) => {
     const standardItem = document.createElement("div");
     standardItem.classList.add("selected-item");
     standardItem.textContent = item.name;
     standardItem.dataset.index = item.id;
+    standardItem.dataset.type = type;
+
     standardItem.addEventListener("click", function () {
       const index = parseInt(this.dataset.index);
-      const selectedIndex = selectedStandards.findIndex(
+      console.log(this.dataset.type + this.dataset.index)
+      const selectedIndex = selectedStandards[this.dataset.type].findIndex(
         (item) => item.id === index
       );
       if (selectedIndex !== -1) {
-        selectedStandards.splice(selectedIndex, 1);
-        displaySelectedStandards();
+        selectedStandards[this.dataset.type].splice(selectedIndex, 1);
+        displaySelectedStandards(this.dataset.type, this.parentElement);
       }
+      console.log(selectedStandards)
     });
-    selectedStandardsContainer.appendChild(standardItem);
+    div.appendChild(standardItem);
   });
 }
 
@@ -162,9 +197,9 @@ function createOptionButton(text) {
 }
 
 function addStandard(index, name) {
-  if (!selectedStandards.find((item) => item.id === index)) {
-    selectedStandards.push({ id: index, name: name });
-    displaySelectedStandards();
+  if (!selectedStandards[selectedType].find((item) => item.id === index)) {
+    selectedStandards[selectedType].push({ id: index, name: name });
+    displaySelectedStandards(selectedType, selectedTypeDiv);
   }
 }
 
@@ -183,20 +218,14 @@ function editStandard(index, name) {
 function attachEventListenerToSelect() {
   var selects = standardsDiv.querySelectorAll("select");
   selects.forEach((select) => {
-    select.addEventListener("change", function () {
-      selects = standardsDiv.querySelectorAll("select");
-      demofield.value = "";
-      selects.forEach((item) => {
-        demofield.value += item.value;
-      });
-    });
+    select.addEventListener("change", getCurentName);
   });
 }
 
 function attachEventListenerToButton(button, dict) {
   let select = dict;
   button.addEventListener("click", function () {
-    index = button.id.split("editdict")[1];
+    let index = button.id.split("editdict")[1];
     displayDictModal(select);
   });
 }
@@ -232,7 +261,6 @@ closeDictionaryModal.onclick = function () {
 
 function addNewDictionary(dictionaryData, name = "") {
   var dictionary = dictionaryData.options;
-  console.log(dictionary);
   var standards = document.getElementById("standards");
   var standardDiv = document.createElement("div");
   standardDiv.draggable = true; // Make the div draggable
@@ -307,6 +335,21 @@ function addNewDictionary(dictionaryData, name = "") {
       parent.insertBefore(draggedItem, this);
     }
   });
+
+}
+
+
+function createNewDivider(value = "") {
+  const input = document.createElement("input")
+  input.type = "text"
+  input.maxLength = 1
+  input.value = value
+  input.addEventListener("change", getCurentName)
+  return input
+}
+function getCurentName() {
+  demofield.value = "";
+  standardsDiv.querySelectorAll("select").forEach(select => demofield.value += select.value)
 }
 
 document.getElementById("add_new_dict").addEventListener("click", function () {
@@ -349,9 +392,9 @@ function displayDictModal(select) {
       opt.value = inputs[++i].value;
       select.appendChild(opt);
     }
-    if (dictionaryNameField.value != "")
-      select.name = dictionaryNameField.value;
-    else select.name = "dict";
+    select.parentElement.firstElementChild.innerHTML = name
+    select.dataset.name = name;
+    select.name = name;
     dictionaryModal.style.display = "none";
     standardModal.style.display = "block";
   });
@@ -396,17 +439,17 @@ submitStandard.addEventListener("click", function () {
     showError("Enter a name");
     return;
   }
-  var dictsData = {};
+  var standardData = { 'name': name };
 
-  dictsData.name = document.getElementById("standard_name").value;
-  dictsData.dict_data = [];
+  standardData.dict_data = [];
 
   // Get all select elements within standardsDiv
   var selects = standardsDiv.querySelectorAll("select");
-  if (selects.length < 4) {
-    showError("you have to have at least 4 dictionary of options");
+  if (selects.length < 1) {
+    showError("you have to have at least 1 dictionary of options");
     return;
   }
+
 
   // Iterate over each select element
 
@@ -425,16 +468,18 @@ submitStandard.addEventListener("click", function () {
     });
 
     // Push the data object to the dicts array in dictsData
-    dictsData.dict_data.push(data);
+    standardData.dict_data.push(data);
+
+
   });
-  dictsData.token = localStorage.getItem("token");
-  console.log(JSON.stringify(dictsData));
-  ipcRenderer.send(
-    "apiRequest",
-    dictsData,
-    "http://127.0.0.1:8000/api/addnewdictionary",
-    "allStandardResponse"
-  );
+  standardData.token = localStorage.getItem("token");
+  console.log(JSON.stringify(standardData));
+  // ipcRenderer.send(
+  //   "apiRequest",
+  //   standardData,
+  //   "http://127.0.0.1:8000/api/addnewstandard",
+  //   "allStandardResponse"
+  // );
 });
 
 ipcRenderer.send(
@@ -455,10 +500,11 @@ ipcRenderer.on("allStandardResponse", (event, responseData) => {
 ipcRenderer.on("standardDictsResponse", (event, responseData) => {
   var response = JSON.parse(responseData);
   document.getElementById("standard_name").value = response.name;
-  updateStandardModal(response.dict_data);
+  updateStandardModal(response.dict_data)
 });
 
 function updateStandardModal(dictList) {
+  console.log(dictList)
   standardsDiv.innerHTML = "";
   const dropTarget = document.createElement("div");
   dropTarget.classList.add("drop-target");
@@ -486,6 +532,8 @@ function updateStandardModal(dictList) {
   dictList.forEach((dict) => {
     addNewDictionary(dict);
   });
+
+  getCurentName()
 }
 
 const form = document.getElementById("project_form");
@@ -495,7 +543,10 @@ form.addEventListener("submit", (event) => {
   const formDataObject = {};
 
   formDataObject["name"] = formData.get("project_name");
-  formDataObject["standardID"] = selectedStandards.map((item) => item.id);
+  formDataObject["standards"] = Object.entries(selectedStandards).reduce((acc, [key, value]) => {
+    acc[key] = value.map(obj => obj.id);
+    return acc;
+  }, {});;
   formDataObject["token"] = localStorage.getItem("token");
   console.log(formDataObject);
   ipcRenderer.send(

@@ -20,8 +20,10 @@ if (require('electron-squirrel-startup')) {
 function createWindow() {
   // Create the browser window.
   mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 1200,
+    height: 700,
+    minWidth: 1000, // Set the minimum width
+    minHeight: 600, // Set the minimum height
     webPreferences: {
 
       nodeIntegration: true,
@@ -60,10 +62,13 @@ function createFormWindow() {
 }
 
 // Listen for the 'load-page' event from the renderer process
-ipcMain.on('load-page', (event, fileName) => {
+ipcMain.on('load-page', (event, fileName,) => {
   mainWindow.loadFile(path.join(__dirname, "pages/" + fileName));
 });
 
+ipcMain.on('getPdfRreader', (event) => {
+  mainWindow.webContents.send('PdfReader', PdfReader)
+});
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.

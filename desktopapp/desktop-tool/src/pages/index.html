@@ -21,14 +21,16 @@
   <label for="password">Lösenord:</label><br>
   <input type="password" id="password" name="password"class="input-field" required><br><br>
   <button class="primarybtn" type="submit">Logga in</button><br><br>
-  <a href="form.html"
-<button class="secondarybtn" id="button">Registrera dig</button>
+  <a href="form.html"></a>
+  <div class="extra-buttons">
+    <button class="secondarybtn" id="button">Registrera dig</button>
+    <button onclick='shell.openExternal("http://127.0.0.1:8000/password_reset/")'>glömt lösenord</button>
+  </div>
 </a>
 </form>
 
 <div id="response-container"></div>
 </div>
-
   <script src="../scripts/callout.js"></script>
   <script src="../scripts/index.js"></script>
 </body>

@@ -27,8 +27,8 @@ class Dictionary(models.Model):
 
 
 class Options(models.Model):
-    key = models.CharField(max_length=10, blank=True, null=True)
-    value = models.CharField(max_length=45, blank=True, null=True)
+    key = models.CharField(max_length=65, blank=True, null=True)
+    value = models.CharField(max_length=65, blank=True, null=True)
 
     class Meta:
         managed = False
@@ -51,10 +51,24 @@ class Roles(models.Model):
         managed = False
         db_table = 'roles'
 
+class Type(models.Model):
+    type = models.CharField(unique=True, max_length=45, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'type'
+
+class Dividers(models.Model):
+    divider_str = models.CharField(unique=True, max_length=45)
+
+    class Meta:
+        managed = False
+        db_table = 'dividers'
 
 class Standard(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.ForeignKey(Names, models.DO_NOTHING, blank=True, null=True)
+    divider = models.ForeignKey(Dividers, models.DO_NOTHING)
 
     class Meta:
         managed = False
@@ -84,6 +98,7 @@ class StandardProjectMapping(models.Model):
     id = models.AutoField(primary_key=True)
     standard = models.ForeignKey(Standard, models.DO_NOTHING)
     project = models.ForeignKey(Projects, models.DO_NOTHING)
+    type = models.ForeignKey('Type', models.DO_NOTHING, blank=True, null=True)
 
     class Meta:
         managed = False
@@ -107,3 +122,10 @@ class OptionDictMapping(models.Model):
     class Meta:
         managed = False
         db_table = 'option_dict_mapping'
+
+class BlacklistedToken(models.Model):
+    token = models.CharField(max_length=500, unique=True)
+    invalidated_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.token

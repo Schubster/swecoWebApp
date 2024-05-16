@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" href="../style/newproject.css">
-<link rel="stylesheet" href="../style/callout.css">
 <link rel="stylesheet" href="../style/menu.css">
+<link rel="stylesheet" href="../style/callout.css">
+<link rel="stylesheet" href="../style/newproject.css">
 
 <title>New Project Form</title>
 </head>
@@ -27,13 +27,20 @@
         </ul>
     </div>
 
-<form id="project_form" action="" method="post">
+<form class="project-form" id="project_form" action="" method="post">
   
   <label for="project_name">Project Name:</label><br>
   <input type="text" id="project_name" name="project_name" required><br><br>
   <label for="standard">Select Standards:</label><br>
   
-  <div class="selected-standards-container"></div>
+  <div class="selected-standards-container-div">
+    <h2>modeller</h2><h2>ritningar</h2><h2>textdokument</h2>
+    <div data-type="modeller" class="selected-standards-container"></div>
+    
+    <div data-type="ritningar" class="selected-standards-container"></div>
+    
+    <div data-type="textdokument" class="selected-standards-container"></div>
+  </div>
   <div class="dropdown">
     <input class="dropdown-input" type="text" placeholder="Type to search" />
     <div class="dropdown-content">
@@ -54,7 +61,7 @@
       </div>
     
       <button type="button" id="add_new_dict">Add Standard</button><br><br>
-      <label for="demofield">Demo Field</label>
+      <label class="demofield-label"for="demofield">Demo Field:</label>
       <input type="text" class="demofield" id="demofield" name="demofield" readonly ><br><br>
       <button type="button" id="submit_standard">Submit New Standard</button><br><br>
     </div>
@@ -71,7 +78,7 @@
       </div>
       <button type="button" id="add_option">Add Option</button><br><br>
 
-    <button type="button" id="add_dictionary">Add Dictionary</button><br><br>
+    <button type="button" id="add_dictionary">confirm</button><br><br>
       <!-- Add more fields as needed -->
     </div>
   </div>

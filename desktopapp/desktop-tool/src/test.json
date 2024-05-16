@@ -1,7 +1,263 @@
-{
-    "name": "test",
-    "test": [
-        {"id":8,"name":"test2","dict_data":[{"id":3,"name":"test20","options":{"test1":"001","test2":"002"}}]},
-        {"id":8,"name":"test2","dict_data":[{"name":"test20","id":3,"options":{"test1":"001","test2":"002"}}]}
-    ]
-}
+[
+  {
+    "id": 20,
+    "name": "tool demo project2",
+    "standards_by_type": {
+      "modeller": [
+        {
+          "id": 59,
+          "name": "tool demo standard1",
+          "dictionaries": [
+            {
+              "name": "Elprojekt├Âr",
+              "options": {
+                "typ1": "El1",
+                "typ2": "El2"
+              }
+            },
+            {
+              "name": "Telesystem",
+              "options": {
+                "system 1": "sys1",
+                "system 2": "sys2"
+              }
+            },
+            {
+              "name": "Planritning",
+              "options": {
+                "planritning 1": "Vr1",
+                "planritning 2": "Vr2"
+              }
+            },
+            {
+              "name": "Nummer",
+              "options": {
+                "typ1": "-0001",
+                "typ2": "-0002",
+                "typ3": "-0003"
+              }
+            }
+          ]
+        },
+        {
+          "id": 61,
+          "name": "tool demo standard4",
+          "dictionaries": [
+            {
+              "name": "Elprojekt├Âr",
+              "options": {
+                "ETyp3": "E3",
+                "ETyp4": "E4"
+              }
+            },
+            {
+              "name": "Telesystem",
+              "options": {
+                "system 3": "sys3",
+                "system 4": "sys4",
+                "No System": "N"
+              }
+            },
+            {
+              "name": "Planritning",
+              "options": {
+                "planritning 1": "Vr1",
+                "planritning 2": "Vr2"
+              }
+            },
+            {
+              "name": "Nummer",
+              "options": {
+                "typ1": "-1",
+                "typ3": "-3",
+                "typ4": "-4"
+              }
+            }
+          ]
+        }
+      ],
+      "ritningar": [
+        {
+          "id": 59,
+          "name": "tool demo standard1",
+          "dictionaries": [
+            {
+              "name": "Elprojekt├Âr",
+              "options": {
+                "typ1": "El1",
+                "typ2": "El2"
+              }
+            },
+            {
+              "name": "Telesystem",
+              "options": {
+                "system 1": "sys1",
+                "system 2": "sys2"
+              }
+            },
+            {
+              "name": "Planritning",
+              "options": {
+                "planritning 1": "Vr1",
+                "planritning 2": "Vr2"
+              }
+            },
+            {
+              "name": "Nummer",
+              "options": {
+                "typ1": "-0001",
+                "typ2": "-0002",
+                "typ3": "-0003"
+              }
+            }
+          ]
+        },
+        {
+          "id": 60,
+          "name": "tool demo standard2",
+          "dictionaries": [
+            {
+              "name": "Elprojekt├Âr",
+              "options": {
+                "ETyp3": "E3",
+                "ETyp4": "E4"
+              }
+            },
+            {
+              "name": "Telesystem",
+              "options": {
+                "system 1": "sys1",
+                "system 2": "sys2"
+              }
+            },
+            {
+              "name": "Planritning",
+              "options": {
+                "planritning 1": "Vr1",
+                "planritning 2": "Vr2"
+              }
+            },
+            {
+              "name": "Nummer",
+              "options": {
+                "typ1": "-01",
+                "typ2": "-02",
+                "typ3": "-03",
+                "typ4": "-04"
+              }
+            }
+          ]
+        }
+      ],
+      "textdokument": [
+        {
+          "id": 59,
+          "name": "tool demo standard1",
+          "dictionaries": [
+            {
+              "name": "Elprojekt├Âr",
+              "options": {
+                "typ1": "El1",
+                "typ2": "El2"
+              }
+            },
+            {
+              "name": "Telesystem",
+              "options": {
+                "system 1": "sys1",
+                "system 2": "sys2"
+              }
+            },
+            {
+              "name": "Planritning",
+              "options": {
+                "planritning 1": "Vr1",
+                "planritning 2": "Vr2"
+              }
+            },
+            {
+              "name": "Nummer",
+              "options": {
+                "typ1": "-0001",
+                "typ2": "-0002",
+                "typ3": "-0003"
+              }
+            }
+          ]
+        },
+        {
+          "id": 60,
+          "name": "tool demo standard2",
+          "dictionaries": [
+            {
+              "name": "Elprojekt├Âr",
+              "options": {
+                "ETyp3": "E3",
+                "ETyp4": "E4"
+              }
+            },
+            {
+              "name": "Telesystem",
+              "options": {
+                "system 1": "sys1",
+                "system 2": "sys2"
+              }
+            },
+            {
+              "name": "Planritning",
+              "options": {
+                "planritning 1": "Vr1",
+                "planritning 2": "Vr2"
+              }
+            },
+            {
+              "name": "Nummer",
+              "options": {
+                "typ1": "-01",
+                "typ2": "-02",
+                "typ3": "-03",
+                "typ4": "-04"
+              }
+            }
+          ]
+        },
+        {
+          "id": 61,
+          "name": "tool demo standard4",
+          "dictionaries": [
+            {
+              "name": "Elprojekt├Âr",
+              "options": {
+                "ETyp3": "E3",
+                "ETyp4": "E4"
+              }
+            },
+            {
+              "name": "Telesystem",
+              "options": {
+                "system 3": "sys3",
+                "system 4": "sys4",
+                "No System": "N"
+              }
+            },
+            {
+              "name": "Planritning",
+              "options": {
+                "planritning 1": "Vr1",
+                "planritning 2": "Vr2"
+              }
+            },
+            {
+              "name": "Nummer",
+              "options": {
+                "typ1": "-1",
+                "typ3": "-3",
+                "typ4": "-4"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

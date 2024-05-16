@@ -3,15 +3,29 @@ from .models import Names, Roles, Users, Projects, Standard, OptionDictMapping, 
 from django.contrib.auth.hashers import make_password
 
 
+class StandardTypeSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    type = serializers.CharField()
+
+class DynamicTypeListField(serializers.ListField):
+    def to_representation(self, data):
+        print(data)
+        return [{'id': item['id'], 'type': self.field_name} for item in data]
+
+    def to_internal_value(self, data):
+        print(data)
+        return [{'id': item['id'], 'type': item['type']} for item in data]
+
 class ProjectsSerializer(serializers.ModelSerializer):
     name = serializers.CharField(source='name.name')
     id = serializers.IntegerField(required=False)
     standardID = serializers.ListField(child = serializers.IntegerField(), required=False)
+    standards = serializers.DictField(required=False)
     standardName = serializers.SerializerMethodField(required=False)
 
     class Meta:
         model = Projects
-        fields = ['id', 'name', 'standardID', 'standardName']
+        fields = ['id', 'name', 'standardID', 'standardName', 'standards']
 
     def get_name(self, obj):
         return obj.name.name if obj.name else None
@@ -24,18 +38,76 @@ class ProjectsSerializer(serializers.ModelSerializer):
                 standard = standard_mapping.standard
                 standardNames.append(standard.name.name)
             return(standardNames)
+
+class ProjectWithStandardsSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(source='name.name')
+    standards_by_type = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Projects
+        fields = ['id', 'name', 'standards_by_type']
+
+    def get_standards_by_type(self, project):
+        mappings = StandardProjectMapping.objects.filter(project=project)
+        standards_by_type = {}
+        for mapping in mappings:
+            type_name = mapping.type.type
+            if type_name not in standards_by_type:
+                standards_by_type[type_name] = []
+            standard = mapping.standard
+            standards_by_type[type_name].append(StandardWithDictionarySerializer(standard).data)
+        return standards_by_type
+    
+class OptionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Options
+        fields = ['key', 'value']
+
+class DictionarySerializer(serializers.ModelSerializer):
+    name = serializers.CharField(source='name.name')
+    options = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Dictionary
+        fields = ['name', 'options']
+
+    def get_options(self, dictionary):
+        mappings = OptionDictMapping.objects.filter(dictionary=dictionary)
+        options_dict = {}
+        for mapping in mappings:
+            option = mapping.option
+            options_dict[option.key] = option.value
+        return options_dict
+    
+class StandardWithDictionarySerializer(serializers.ModelSerializer):
+    name = serializers.CharField(source='name.name')
+    dividers = serializers.CharField(source='divider.divider_str',required=False)
+    dictionaries = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Standard
+        fields = ['id', 'name', 'dividers', 'dictionaries']
+
+    def get_dictionaries(self, standard):
+        mappings = StandardDictMapping.objects.filter(standard=standard)
+        dictionaries = []
+        for mapping in mappings:
+            dictionary = mapping.dictionary
+            serialized_dict = DictionarySerializer(dictionary).data
+            dictionaries.append(serialized_dict)
+        return dictionaries
             
         
 class StandardDataSerializer(serializers.ModelSerializer):
     # You can include related fields from ForeignKey relationships using SerializerMethodField
     id = serializers.IntegerField(required=False)
     name = serializers.SerializerMethodField()
-    
+    dividers = serializers.CharField(source='divider.divider_str',required=False)
     dict_data = serializers.SerializerMethodField(required=False)
 
     class Meta:
         model = Standard
-        fields = ['id', 'name', 'dict_data']
+        fields = ['id', 'name', 'dividers','dict_data']
 
     def get_dict_data(self, obj):
         if obj.id is not None:
@@ -71,14 +143,6 @@ class StandardSerializer(serializers.ModelSerializer):
     class Meta:
         model = Standard
         fields = ['id', 'name']
-
-
-    def get_name(self, obj):
-        # This method fetches the name associated with the Standard object
-        if obj.name:
-            return obj.name.name  # Assuming 'name' is a CharField in the 'Names' model
-        else:
-            return None
 
 class UsersInProjectSerializer(serializers.ModelSerializer):
     email = serializers.EmailField()
@@ -126,52 +190,18 @@ class DictsDataSerializer(serializers.Serializer):
         fields = ['id', "name", "options"]
 
 class NewStandartSerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField(required=False)
     name = serializers.CharField(source='name.name')
     dict_data = serializers.ListField(child=DictsDataSerializer(), required=False)
+    standardID = serializers.IntegerField(required=False)
+    projectID = serializers.IntegerField(required=False)
+    type = serializers.CharField(required=False)
+    
     
 
 
     class Meta:
         model = Standard
-        fields = ['id', 'name', 'dict_data']
+        fields = ['id', 'name', 'dict_data', 'standardID', 'projectID', 'type']
 
     def get_name(self, obj):
         return obj.name.name if obj.name else None
-    
-    
-
-
-# class OptionSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Options
-#         fields = ['key', 'value']
-
-# class DictionarySerializer(serializers.ModelSerializer):
-#     options = OptionSerializer(many=True, read_only=True)
-
-#     class Meta:
-#         model = Dictionary
-#         fields = ['id', 'name', 'options']
-
-# class StandardDictMappingSerializer(serializers.ModelSerializer):
-#     dictionary = DictionarySerializer()
-
-#     class Meta:
-#         model = StandardDictMapping
-#         fields = ['dictionary']
-
-# class StandardSerializer(serializers.ModelSerializer):
-#     name = serializers.SerializerMethodField()
-#     dict_data = StandardDictMappingSerializer(source='standarddictmapping_set', many=True)
-
-#     class Meta:
-#         model = Standard
-#         fields = ['id', 'name', 'dict_data']
-
-#     def get_name(self, obj):
-#         # This method fetches the name associated with the Standard object
-#         if obj.name:
-#             return obj.name.name  # Assuming 'name' is a CharField in the 'Names' model
-#         else:
-#             return None
