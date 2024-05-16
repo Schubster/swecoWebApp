@@ -109,7 +109,7 @@ def addnewstandard(request):
                 mapDictData(serializer.data.get('dict_data', []), standard)
             print(serializer.data)
             standard = Standard.objects.get(id=standard_id)
-            # standard.standarddictmapping_set.all().prefetch_related('dictionary', 'dictionary__optiondictmapping_set').delete()
+            standard.standarddictmapping_set.all().prefetch_related('dictionary', 'dictionary__optiondictmapping_set').delete()
             mapDictData(serializer.data.get('dict_data', []), standard)
             standards = Standard.objects.all()[:21]
             serializer = StandardSerializer(standards, many=True)  # Serialize queryset
@@ -128,6 +128,7 @@ def mapDictData(dict_data, standard_instance):
     for data in dict_data:
         dictionary_name = data.get('name')
         options = data.get('options', {})
+        name_instense,_ = Names.objects.get_or_create(name=dictionary_name)
         dictionary_query = Dictionary.objects.filter(name__name=dictionary_name)
         dictionary_query = dictionary_query.annotate(matching_options_count=Count('optiondictmapping'))
         for key, value in options.items():
@@ -137,9 +138,9 @@ def mapDictData(dict_data, standard_instance):
         if dictionary_query.exists():
             new_standarddict_mappings.append(StandardDictMapping(dictionary=dictionary_query.first(), standard=standard_instance))
         else:
-            new_dict = Dictionary.objects.create(name__name=dictionary_name)
+            new_dict = Dictionary.objects.create(name=name_instense)
             for key, value in options.items():
-                new_option,_ = Options.objects.get_or_create(key, value)
+                new_option,_ = Options.objects.get_or_create(key=key, value=value)
                 new_options_mapping.append(OptionDictMapping(dictionary=new_dict, option=new_option))
             new_standarddict_mappings.append(StandardDictMapping(dictionary=new_dict, standard=standard_instance))
     OptionDictMapping.objects.bulk_create(new_options_mapping)

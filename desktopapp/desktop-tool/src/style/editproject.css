@@ -22,7 +22,7 @@
     width: 80%;
     max-width: 900px;
     min-width: 500px;
-    min-height: 500px;
+    min-height: 600px;
     max-height: 80%;
     border-radius: 10px;
   }
@@ -47,9 +47,12 @@
   }
   .standards{
     display:grid;
+    max-height: 305px;
     overflow-x: scroll;
+    overflow-y: auto;
     justify-content: left;
     grid-template-columns: auto auto auto auto auto auto;
+    margin: 20px 0 20px 0;
   }
   .standards::-webkit-scrollbar {
     width: 10px; /* Width of the scrollbar */

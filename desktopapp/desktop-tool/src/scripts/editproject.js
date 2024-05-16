@@ -118,7 +118,7 @@ function makeStandardli(standard, subList){
     )
   const removeBtn = document.createElement("button")
   removeBtn.classList.add("remove-standard-item-btn")
-  removeBtn.innerText = "remove"
+  removeBtn.innerText = "Ta bort"
   removeBtn.type = "button"
   removeBtn.addEventListener("click", (event)=>{
     event.stopPropagation()
@@ -166,6 +166,7 @@ ipcRenderer.on("updatedprojectresponse", (event, responseData) => {
   showError(response["message"], false)
   updatedProjectData = projectData
   displaySelectedStandards()
+  makeRenameTool()
   
 })
 inputField.addEventListener("input", () => search());
@@ -254,30 +255,6 @@ function search() {
   }, 300);
 }
 
-// function displaySelectedStandards(type, div) {
-  //   div.innerHTML = "";
-  //   selectedStandards[type].forEach((item) => {
-    //     const standardItem = document.createElement("div");
-    //     standardItem.classList.add("selected-item");
-    //     standardItem.textContent = item.name;
-    //     standardItem.dataset.index = item.id;
-    //     standardItem.dataset.type = type;
-
-    //     standardItem.addEventListener("click", function () {
-      //       const index = parseInt(this.dataset.index);
-      //       console.log(this.dataset.type + this.dataset.index)
-      //       const selectedIndex = selectedStandards[this.dataset.type].findIndex(
-        //         (item) => item.id === index
-      //       );
-      //       if (selectedIndex !== -1) {
-        //         selectedStandards[this.dataset.type].splice(selectedIndex, 1);
-        //         displaySelectedStandards(this.dataset.type, this.parentElement);
-      //       }
-//       console.log(selectedStandards)
-    //     });
-    //     div.appendChild(standardItem);
-  //   });
-// }
 
 function createOptionButton(text) {
   const button = document.createElement("div");

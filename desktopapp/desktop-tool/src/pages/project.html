@@ -34,14 +34,13 @@
     <div class="tab-container">
         <div class="tab selected"data-container="tools">Redskap</div>
         <div class="tab"data-container="user">Användare</div>
-        <div class="tab"data-container="validation">Validerare</div>
         <div class="tab"data-container="edit">Edit</div>
     </div>
 
     <div class="container">
             <div class="tools view selected rename-content">
                 <div class="file-explorer empty" id="fileExplorer">
-                    <p class="empty-explorer-text">Drag & drop files here to rename</p>
+                    <p class="empty-explorer-text">Drag & drop filer här</p>
                 <div class="resize-handle" id="resizeHandle"></div>
                 </div>
                 
@@ -51,14 +50,14 @@
                     <div data-type="ritningar" class="tooltab">Ritning</div>
                 </div>
                 <div class="rename-options">
-                    <div data-type="textdokument" class="type-container textdokument selected">text</div>
-                    <div data-type="modeller" class="type-container modell">modell</div>
-                    <div data-type="ritningar" class="type-container ritning">ritning</div>
+                    <div data-type="textdokument" class="type-container textdokument selected">Text</div>
+                    <div data-type="modeller" class="type-container modell">Modell</div>
+                    <div data-type="ritningar" class="type-container ritning">Ritning</div>
                 </div>
 
                 <div class="new-name-container">
                     <input type="text" class="demofield" id="demofield" name="demofield" readonly >
-                    <button class="changenamebtn">confirm new name</button>
+                    <button class="changenamebtn">Bekräfta nytt namn</button>
                 </div>
             </div>
         
@@ -70,31 +69,29 @@
                 <button class="user-button green-button">Add</button>
                   <label for="sorting">Filter:</label>
                     <select class="dropdown-select" id="filter">
-                      <option value="In">in project</option>
-                      <option value="NotIn">not in project</option>
-                      <option value="all">all</option>
+                      <option value="In">Användare i projektet</option>
+                      <option value="NotIn">Användare inte i projektet</option>
+                      <option value="all">Alla</option>
                     </select>
                 </div>
                   <ul class="styled-list">
                     
-                    <!-- Add more list items as needed -->
                   </ul>
               </div>
         </div>
 
         
-          <div class="validation view"></div>
         
 
         <div class="edit view">
             <form class="project-form" id="project_form" action="" method="post">
                 <div class="project-name-container">
-                    <label for="project_name">Project Name</label><br>
+                    <label for="project_name">projekt namn</label><br>
                     <input type="text" id="project_name" name="project_name" required>
-                    <input class="edit-btn" id="submit_project_name"type="submit" value="confirm name">
+                    <input class="edit-btn" id="submit_project_name"type="submit" value="Bekräfta namn">
                 </div>
 
-                <label for="standard">Select Standards:</label><br>
+                <label for="standard">valda standarder:</label><br>
                 
                 <div class="selected-standards-container-div">
                     <ul class="standard_type_list_list">
@@ -114,8 +111,8 @@
                       
                 </div>
                 <div class="dropdown">
-                  <input class="dropdown-input" type="text" placeholder="Type to search"/>
-                  <button class="edit-btn" type="button" id="new_standard">Create New Standard</button>
+                  <input class="dropdown-input" type="text" placeholder="Sök efter standard"/>
+                  <button class="edit-btn" type="button" id="new_standard">Skapa ny standard</button>
                   <div class="dropdown-content">
                     <div class="grid-container"></div>
                   </div>
@@ -127,7 +124,7 @@
                   <div class="modal-content">
                     <span class="close" id="close_standard_modal">&times;</span>
                     <div class="project-name-container">
-                      <label for="standard_name">Standard Name:</label><br>
+                      <label for="standard_name">Standard namn:</label><br>
                       <input type="text" id="standard_name" name="standard_name">
                     </div>
                   
@@ -135,25 +132,25 @@
               
                     </div>
                   
-                    <button class="edit-btn" type="button" id="add_new_dict">Add Standard</button><br><br>
-                    <label class="demofield-label"for="demofield">Demo Field:</label>
+                    <button class="edit-btn" type="button" id="add_new_dict">Lägg till del</button><br><br>
+                    <label class="demofield-label"for="demofield">Demo fält:</label>
                     <input type="text" class="demofield" id="editdemofield" name="demofield" readonly ><br><br>
-                    <button class="edit-btn" type="button" id="update_standard">Update Standard</button><br><br>
+                    <button class="edit-btn" type="button" id="update_standard">Uppdatering standard</button><br><br>
                   </div>
                 </div>
               
                 <div id="new_dictionary_modal" class="modal">
                   <div class="modal-content">
                   <span class="close" id="close_dictionary_modal">&times;</span>
-                  <label for="dictionary_name">Dictionary Name:</label><br>
+                  <label for="dictionary_name">Del namn:</label><br>
                     <input type="text" id="dictionary_name" name="dictionary_name"><br><br>
               
-                    <label for="option">Options:</label><br>
+                    <label for="option">Alternativ:</label><br>
                     <div id="options">
                     </div>
-                    <button type="button" id="add_option">Add Option</button><br><br>
+                    <button type="button" id="add_option">Lägg till alternativ</button><br><br>
               
-                  <button type="button" id="add_dictionary">confirm</button><br><br>
+                  <button type="button" id="add_dictionary">Bekräfta</button><br><br>
                     <!-- Add more fields as needed -->
                   </div>
                 </div>
