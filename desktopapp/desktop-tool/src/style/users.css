@@ -1,5 +1,5 @@
 /* Style for the dropdown input */
-  .dropdown-input{
+  .user-dropdown-input{
     padding: 10px 30px 10px 20px; /* Increased padding to accommodate the arrow */
     width: 200px; /* Set the width of the input */
   }

@@ -23,7 +23,7 @@ from datetime import datetime, timedelta
 from django.conf import settings
 from django.contrib.auth.hashers import check_password
 from .forms import PasswordResetRequestForm, NewPasswordForm
-
+from django.db import transaction
 import traceback
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
@@ -100,44 +100,17 @@ def addnewstandard(request):
         serializer = NewStandartSerializer(data=request.data)
         if serializer.is_valid():
             standard_name = serializer.data['name']
-            standard_dividers = serializer.data['dividers']
-            # Check if the standard name already exists
-            if Standard.objects.filter(name__name=standard_name).exists():
-                return Response({'error': "that standard name is taken"}, status=status.HTTP_400_BAD_REQUEST)
-
-            # Create the new standard
-            standard_name,_ = Names.objects.get_or_create(name=standard_name)
-            dividers,_ = Dividers.objects.get_or_create(divider_str=standard_dividers)
-            standard_instance = Standard.objects.create(name=standard_name, divider=dividers)
-
-            # Get or create dictionaries and options
-            dict_data = serializer.data.get('dict_data', [])
-            created_dicts = []
-
-            for data in dict_data:
-                name = data.get('name')
-                options = data.get('options', {})
-                
-                existing_dict = Dictionary.objects.filter(name__name=name, optiondictmapping__option__key__in=options.keys(), optiondictmapping__option__value__in=options.values()).first()
-
-                if existing_dict:
-                    created_dicts.append(existing_dict)
-                else:
-                    new_dict_name,_ = Names.objects.get_or_create(name = name)
-                    new_dict = Dictionary.objects.create(name=new_dict_name)
-                    
-                    for key, value in options.items():
-                        option, _ = Options.objects.get_or_create(key=key, value=value)
-                        OptionDictMapping.objects.create(dictionary=new_dict, option=option)
-                    
-                    created_dicts.append(new_dict)
-            standard_dict_mappings = []
-            for new_dict in created_dicts:
-                standard_dict_mapping = StandardDictMapping(standard=standard_instance, dictionary=new_dict)
-                standard_dict_mappings.append(standard_dict_mapping)
-
-            # Bulk create StandardDictMapping instances
-            StandardDictMapping.objects.bulk_create(standard_dict_mappings)
+            standard_id = serializer.data.get("standardID", None)
+            if standard_id == None:
+                if Standard.objects.filter(name__name=standard_name).exists():
+                    return Response({'error': "that standard name is taken"}, status=status.HTTP_400_BAD_REQUEST)
+                standard_name,_ = Names.objects.get_or_create(name=standard_name)
+                standard = Standard.objects.create(name=standard_name)
+                mapDictData(serializer.data.get('dict_data', []), standard)
+            print(serializer.data)
+            standard = Standard.objects.get(id=standard_id)
+            # standard.standarddictmapping_set.all().prefetch_related('dictionary', 'dictionary__optiondictmapping_set').delete()
+            mapDictData(serializer.data.get('dict_data', []), standard)
             standards = Standard.objects.all()[:21]
             serializer = StandardSerializer(standards, many=True)  # Serialize queryset
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -147,6 +120,30 @@ def addnewstandard(request):
         traceback.print_exc()
         print(e)
         return JsonResponse({'error': 'somthing went wrong'}, status=500)
+@transaction.atomic
+def mapDictData(dict_data, standard_instance):
+    created_dicts = []
+    new_standarddict_mappings = []
+    new_options_mapping = []
+    for data in dict_data:
+        dictionary_name = data.get('name')
+        options = data.get('options', {})
+        dictionary_query = Dictionary.objects.filter(name__name=dictionary_name)
+        dictionary_query = dictionary_query.annotate(matching_options_count=Count('optiondictmapping'))
+        for key, value in options.items():
+            dictionary_query = dictionary_query.filter(optiondictmapping__option__key=key, optiondictmapping__option__value=value)
+        # Filter dictionaries where the count of matching options is equal to the total number of options
+        dictionary_query = dictionary_query.filter(matching_options_count=len(options))
+        if dictionary_query.exists():
+            new_standarddict_mappings.append(StandardDictMapping(dictionary=dictionary_query.first(), standard=standard_instance))
+        else:
+            new_dict = Dictionary.objects.create(name__name=dictionary_name)
+            for key, value in options.items():
+                new_option,_ = Options.objects.get_or_create(key, value)
+                new_options_mapping.append(OptionDictMapping(dictionary=new_dict, option=new_option))
+            new_standarddict_mappings.append(StandardDictMapping(dictionary=new_dict, standard=standard_instance))
+    OptionDictMapping.objects.bulk_create(new_options_mapping)
+    StandardDictMapping.objects.bulk_create(new_standarddict_mappings)
 
 @api_view(['POST'])
 def fetchStandards(request):
@@ -216,11 +213,11 @@ def fetchAllProjectStandards(request):
         response = validate_admin(TokenSerializer(data={"token": token}))
         if not isinstance(response, Users):  # If response is not an instance of Users
             return response
-        projectID = request.data["standard_id"]
+        projectID = request.data["projectID"]
         project = Projects.objects.filter(id = projectID)
         if not project.exists():
             return JsonResponse({'error': 'project could not be found'}, status=400)
-        serializer = ProjectWithStandardsSerializer(project, many=True)
+        serializer = ProjectWithStandardsSerializer(project.first())
         return Response(serializer.data, status=200)
     except Exception as e:
         traceback.print_exc()
@@ -251,6 +248,105 @@ def fetchProjects(request):
         print(e)
         return Response({'error': 'somthing went wrong'}, status=500)
     
+@api_view(["post"])
+def removeStandard(request):
+    try:
+        if not request.method == 'POST':
+            return JsonResponse({'error': 'Only POST requests are allowed'}, status=405)
+        token = request.data["token"]
+        standardID = request.data["standardID"]
+        projectID = request.data["projectID"]
+        standardType = request.data["type"]
+        response = validate_admin(TokenSerializer(data={"token": token}))
+        if not isinstance(response, Users):  # If response is not an instance of Users
+            return response
+        # Retrieve the project object
+        project = Projects.objects.filter(id=projectID)
+        if not project.exists():
+            return JsonResponse({'error': 'The project can\'t be found'}, status=status.HTTP_400_BAD_REQUEST)
+
+        standard = Standard.objects.filter(id=standardID)
+        if not standard.exists():
+            return JsonResponse({'error': 'The standard can\'t be found'}, status=status.HTTP_400_BAD_REQUEST)
+
+        standard_type = Type.objects.filter(type=standardType)
+        if not standard_type.exists():
+            return JsonResponse({'error': 'The standard type can\'t be found'}, status=status.HTTP_400_BAD_REQUEST)
+
+        mapping = StandardProjectMapping.objects.filter(standard=standard.first(), project=project.first(), type=standard_type.first())
+        if not mapping.exists():
+            return JsonResponse({'error': 'It seems like that standard is not a part of the project'}, status=status.HTTP_400_BAD_REQUEST)
+
+        mapping.delete()
+        serializer = ProjectWithStandardsSerializer(project.first())
+        return Response({"project":serializer.data, "message": "Standard removed successfully"}, status=status.HTTP_202_ACCEPTED)
+    except Exception as e:
+        traceback.print_exc()
+        print(e)
+        return Response({'error': 'somthing went wrong'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+@api_view(["post"])
+def addStandard(request):
+    try:
+        if not request.method == 'POST':
+            return JsonResponse({'error': 'Only POST requests are allowed'}, status=405)
+        token = request.data["token"]
+        standardID = request.data["standardID"]
+        projectID = request.data["projectID"]
+        standardType = request.data["type"]
+        response = validate_admin(TokenSerializer(data={"token": token}))
+        if not isinstance(response, Users):  # If response is not an instance of Users
+            return response
+        # Retrieve the project object
+        project = Projects.objects.filter(id=projectID)
+        if not project.exists():
+            return JsonResponse({'error': 'The project can\'t be found'}, status=status.HTTP_400_BAD_REQUEST)
+
+        standard = Standard.objects.filter(id=standardID)
+        if not standard.exists():
+            return JsonResponse({'error': 'The standard can\'t be found'}, status=status.HTTP_400_BAD_REQUEST)
+
+        standard_type = Type.objects.filter(type=standardType)
+        if not standard_type.exists():
+            return JsonResponse({'error': 'The standard type can\'t be found'}, status=status.HTTP_400_BAD_REQUEST)
+
+        mapping, created = StandardProjectMapping.objects.get_or_create(standard=standard.first(),project=project.first(),type=standard_type.first())
+        if not created:
+            return JsonResponse({'error': 'It seems like that standard is already a part of the project'}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = ProjectWithStandardsSerializer(project.first())
+        return Response({"project":serializer.data, "message": "Standard added successfully"}, status=status.HTTP_201_CREATED)
+    except Exception as e:
+        traceback.print_exc()
+        print(e)
+        return Response({'error': 'somthing went wrong'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(["post"])
+def updateProjectName(request):
+    try:
+        if not request.method == 'POST':
+            return JsonResponse({'error': 'Only POST requests are allowed'}, status=405)
+        token = request.data["token"]
+        projectID = request.data["projectID"]
+        newName = request.data["name"]
+        response = validate_admin(TokenSerializer(data={"token": token}))
+        if not isinstance(response, Users):  # If response is not an instance of Users
+            return response
+        # Retrieve the project object
+        if not Projects.objects.filter(id=projectID).exists():
+            return JsonResponse({'error': 'The project can\'t be found'}, status=status.HTTP_400_BAD_REQUEST)
+        project = Projects.objects.filter(id=projectID).first()
+        projectName,_ = Names.objects.get_or_create(name=newName)
+        if Projects.objects.filter(name = projectName).exists():
+            return JsonResponse({'error': 'a project with that name already exists'}, status=status.HTTP_400_BAD_REQUEST)
+        project.name = projectName
+        project.save()
+        serializer = ProjectWithStandardsSerializer(project)
+        return Response({"project":serializer.data, "message": "name updated successfully"}, status=status.HTTP_201_CREATED)
+    except Exception as e:
+        traceback.print_exc()
+        print(e)
+        return Response({'error': 'somthing went wrong'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(["post"])
 def searchUser(request):

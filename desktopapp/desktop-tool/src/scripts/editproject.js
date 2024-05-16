@@ -1,4 +1,6 @@
-const { ipcRenderer } = require("electron");
+
+
+
 
 // Usage examp
 
@@ -26,6 +28,7 @@ const emptyProject = [
 ];
 
 let draggedItem = null;
+let standardToUpdate = null
 
 const defaultStandard = [
   { name: "Elprojektör", options: { placeholder: "P" } },
@@ -36,9 +39,9 @@ const defaultStandard = [
 
 var standardsDiv = document.getElementById("standards");
 
-var demofield = document.getElementById("demofield");
+var editdemofield = document.getElementById("editdemofield");
 const dictionaryNameField = document.getElementById("dictionary_name");
-var submitStandard = document.getElementById("submit_standard");
+var updateStandard = document.getElementById("update_standard");
 
 // Get the modals
 var standardModal = document.getElementById("new_standard_modal");
@@ -52,42 +55,122 @@ var standardButton = document.getElementById("edit_standard");
 var closeStandardModal = document.getElementById("close_standard_modal");
 var closeDictionaryModal = document.getElementById("close_dictionary_modal");
 
-const fetchData = { token: localStorage.getItem("token") };
 
 // custom dropdown
 let gridItemsData = [];
-let selectedStandards = { "modeller": [], "ritningar": [], "textdokument": [] };
 let debounceTimeout = null;
-let selectedType = null;
+let selectedType = "textdokument";
 let selectedTypeDiv = null
+let selectedList = document.querySelector(".sublist.selected")
+
+
 
 // JavaScript to filter dropdown content based on input search query
 const inputField = document.querySelector(".dropdown-input");
+console.log(inputField)
 const dropdownContent = document.querySelector(".dropdown-content");
 const gridContainer = document.querySelector(".grid-container");
 const dropdownContainer = document.querySelector(".dropdown");
 const selectedStandardsContainer = document.querySelector(
   ".selected-standards-container-div"
 );
-
+const editTypeList = selectedStandardsContainer.querySelectorAll(".standard-type-list")
 const containers = document.querySelectorAll('.selected-standards-container');
-
-containers.forEach(container => {
-  container.addEventListener('click', function () {
-    selectType(container)
-  });
-});
-function selectType(container) {
-  containers.forEach(c => c.classList.remove('selected'));
-  selectedType = container.dataset.type
-  selectedTypeDiv = container
-  container.classList.add('selected');
+let updatedProjectData = null
+const changedData = {removed:[],added:[],changed:[]}
+function makeEditTool(){
+  updatedProjectData = projectData
+  displaySelectedStandards()
+  
 }
-selectType(containers[0])
 
+  function displaySelectedStandards(){
+    document.getElementById("project_name").value = projectData.name
+    editTypeList.forEach(typeList=>{
+    const subList = typeList.querySelector(".sublist")
+    subList.innerHTML = '';
+    
+    updatedProjectData.standards_by_type[typeList.dataset.type].forEach(standard=>{
+      makeStandardli(standard, subList)
+    })
+
+    typeList.addEventListener("click", ()=>{
+        editTypeList.forEach(listItem=> {
+            listItem.querySelector(".sublist").classList.remove("selected")
+            listItem.classList.remove("selected")
+            
+        })
+        selectedList = subList
+        selectedType = typeList.dataset.type
+        subList.classList.add("selected")
+        typeList.classList.add("selected")
+    })
+})
+}
+
+
+function makeStandardli(standard, subList){
+  const listItem = document.createElement("li")
+  listItem.innerText = standard.name
+  listItem.addEventListener("click",()=>{
+    standardToUpdate = standard
+    editStandard(standard, selectedType)}
+    )
+  const removeBtn = document.createElement("button")
+  removeBtn.classList.add("remove-standard-item-btn")
+  removeBtn.innerText = "remove"
+  removeBtn.type = "button"
+  removeBtn.addEventListener("click", (event)=>{
+    event.stopPropagation()
+    updatedProjectData.standards_by_type[selectedType] = updatedProjectData.standards_by_type[selectedType].filter(removeStandard => removeStandard.id !== standard.id)
+    removeStandard(standard, selectedType)
+  })
+  listItem.appendChild(removeBtn)
+  subList.appendChild(listItem)
+}
+
+
+
+function removeStandard(standard, type) {
+  const removeData = fetchData
+  removeData.standardID = standard.id
+  removeData.type = type
+  ipcRenderer.send(
+    "apiRequest",
+    removeData,
+    "http://127.0.0.1:8000/api/standard/remove",
+    "updatedprojectresponse"
+  );
+ }
+ function addStandard(index, name) {
+  if (!updatedProjectData.standards_by_type[selectedType].find((item) => item.id === index)) {
+    console.log("not in")
+    const addData = fetchData
+    addData.standardID = index;
+    addData.type = selectedType
+
+    ipcRenderer.send(
+      "apiRequest",
+      addData,
+      "http://127.0.0.1:8000/api/standard/add",
+      "updatedprojectresponse"
+    );
+    
+  }
+}
+
+ipcRenderer.on("updatedprojectresponse", (event, responseData) => {
+  response = JSON.parse(responseData)
+  console.log(response)
+  projectData = response["project"]
+  showError(response["message"], false)
+  updatedProjectData = projectData
+  displaySelectedStandards()
+  
+})
 inputField.addEventListener("input", () => search());
 inputField.addEventListener("focus", () => showDropdown());
-inputField.addEventListener("focusout", () => hideDropdown());
+//inputField.addEventListener("focusout", () => hideDropdown());
 dropdownContent.addEventListener("mousedown", (event) =>
   preventFocusOut(event)
 );
@@ -117,7 +200,7 @@ function addItems(dataList) {
     const name = gridItem.textContent.trim();
     const optionButtons = document.createElement("div");
     optionButtons.classList.add("option-buttons");
-    const option1 = createOptionButton("Select");
+    const option1 = createOptionButton("Add");
     const option2 = createOptionButton("Use as template");
     optionButtons.appendChild(option1);
     optionButtons.appendChild(option2);
@@ -130,7 +213,14 @@ function addItems(dataList) {
 
     option2.addEventListener("click", function (event) {
       event.stopPropagation(); // Prevent event from propagating to grid item
-      editStandard(index, name);
+      const standardToFetch = fetchData
+      standardToFetch.standard_id = index;
+      ipcRenderer.send(
+        "apiRequest",
+        standardToFetch,
+        "http://127.0.0.1:8000/api/fetchstandards",
+        "standardDictsResponse"
+      );
     });
     gridItem.addEventListener("mouseover", function () {
       this.firstElementChild.style.display = "block";
@@ -146,7 +236,7 @@ function addItems(dataList) {
     gridContainer.appendChild(item);
   });
 }
-
+search()
 function search() {
   clearTimeout(debounceTimeout);
   debounceTimeout = setTimeout(() => {
@@ -164,30 +254,30 @@ function search() {
   }, 300);
 }
 
-function displaySelectedStandards(type, div) {
-  div.innerHTML = "";
-  selectedStandards[type].forEach((item) => {
-    const standardItem = document.createElement("div");
-    standardItem.classList.add("selected-item");
-    standardItem.textContent = item.name;
-    standardItem.dataset.index = item.id;
-    standardItem.dataset.type = type;
+// function displaySelectedStandards(type, div) {
+  //   div.innerHTML = "";
+  //   selectedStandards[type].forEach((item) => {
+    //     const standardItem = document.createElement("div");
+    //     standardItem.classList.add("selected-item");
+    //     standardItem.textContent = item.name;
+    //     standardItem.dataset.index = item.id;
+    //     standardItem.dataset.type = type;
 
-    standardItem.addEventListener("click", function () {
-      const index = parseInt(this.dataset.index);
-      console.log(this.dataset.type + this.dataset.index)
-      const selectedIndex = selectedStandards[this.dataset.type].findIndex(
-        (item) => item.id === index
-      );
-      if (selectedIndex !== -1) {
-        selectedStandards[this.dataset.type].splice(selectedIndex, 1);
-        displaySelectedStandards(this.dataset.type, this.parentElement);
-      }
-      console.log(selectedStandards)
-    });
-    div.appendChild(standardItem);
-  });
-}
+    //     standardItem.addEventListener("click", function () {
+      //       const index = parseInt(this.dataset.index);
+      //       console.log(this.dataset.type + this.dataset.index)
+      //       const selectedIndex = selectedStandards[this.dataset.type].findIndex(
+        //         (item) => item.id === index
+      //       );
+      //       if (selectedIndex !== -1) {
+        //         selectedStandards[this.dataset.type].splice(selectedIndex, 1);
+        //         displaySelectedStandards(this.dataset.type, this.parentElement);
+      //       }
+//       console.log(selectedStandards)
+    //     });
+    //     div.appendChild(standardItem);
+  //   });
+// }
 
 function createOptionButton(text) {
   const button = document.createElement("div");
@@ -196,25 +286,18 @@ function createOptionButton(text) {
   return button;
 }
 
-function addStandard(index, name) {
-  if (!selectedStandards[selectedType].find((item) => item.id === index)) {
-    selectedStandards[selectedType].push({ id: index, name: name });
-    displaySelectedStandards(selectedType, selectedTypeDiv);
-  }
+
+ipcRenderer.on("fetchstandardresponse", (event, responseData) => {
+  fetchedStandard = JSON.parse(responseData)
+  updatedProjectData.standards_by_type[selectedType].push(fetchedStandard)
+  makeStandardli(fetchedStandard, selectedList);
+})
+
+function editStandard(standard, type) {
+  updateStandardModal(standard);
 }
 
-function editStandard(index, name) {
-  console.log(`id: ${index}, name: ${name}`);
-  fetchData["standard_id"] = index;
-  ipcRenderer.send(
-    "apiRequest",
-    fetchData,
-    "http://127.0.0.1:8000/api/fetchstandards",
-    "standardDictsResponse"
-  );
-}
 
-// When the user clicks on the button, open the modals
 function attachEventListenerToSelect() {
   var selects = standardsDiv.querySelectorAll("select");
   selects.forEach((select) => {
@@ -238,7 +321,7 @@ function attachRemove(button) {
 
 attachEventListenerToSelect();
 function clearStandardModal() {
-  demofield.value = "";
+  editdemofield.value = "";
   document.getElementById("standard_name").value = "";
   standards.innerHTML = "";
 }
@@ -348,8 +431,8 @@ function createNewDivider(value = "") {
   return input
 }
 function getCurentName() {
-  demofield.value = "";
-  standardsDiv.querySelectorAll("select").forEach(select => demofield.value += select.value)
+  editdemofield.value = "";
+  standardsDiv.querySelectorAll("select").forEach(select => editdemofield.value += select.value)
 }
 
 document.getElementById("add_new_dict").addEventListener("click", function () {
@@ -433,7 +516,7 @@ document.getElementById("add_option").addEventListener("click", function () {
   addOption();
 });
 
-submitStandard.addEventListener("click", function () {
+updateStandard.addEventListener("click", function () {
   const name = document.getElementById("standard_name").value;
   if (name == null || name == "") {
     showError("Enter a name");
@@ -472,39 +555,42 @@ submitStandard.addEventListener("click", function () {
 
 
   });
-  standardData.token = localStorage.getItem("token");
   console.log(JSON.stringify(standardData));
-  // ipcRenderer.send(
-  //   "apiRequest",
-  //   standardData,
-  //   "http://127.0.0.1:8000/api/addnewstandard",
-  //   "allStandardResponse"
-  // );
+  standardData.token = localStorage.getItem("token");
+  if(standardToUpdate){
+    standardData.standardID = standardToUpdate.id
+    standardData.projectID = projectData.id
+    standardData.type = selectedType
+  }
+  console.log(JSON.stringify(standardData));
+  ipcRenderer.send(
+    "apiRequest",
+    standardData,
+    "http://127.0.0.1:8000/api/addnewstandard",
+    "allStandardResponse"
+  );
 });
 
-ipcRenderer.send(
-  "apiRequest",
-  fetchData,
-  "http://127.0.0.1:8000/api/fetchstandards",
-  "allStandardResponse"
-);
 ipcRenderer.on("allStandardResponse", (event, responseData) => {
+  ipcRenderer.send("apiRequest", fetchData, "http://127.0.0.1:8000/api/fetchAllProjectStandards", "projectResponse");
   var response = JSON.parse(responseData);
   console.log(response);
   clearStandardModal();
   standardModal.style.display = "none";
+  standardToUpdate = null
   gridItemsData = response;
   addItems(gridItemsData);
 
 });
 ipcRenderer.on("standardDictsResponse", (event, responseData) => {
   var response = JSON.parse(responseData);
-  document.getElementById("standard_name").value = response.name;
-  updateStandardModal(response.dict_data)
+  response.dictionaries = response.dict_data
+  updateStandardModal(response)
 });
 
-function updateStandardModal(dictList) {
-  console.log(dictList)
+function updateStandardModal(standard) {
+  document.getElementById("standard_name").value = standard.name;
+  const dictList = standard.dictionaries
   standardsDiv.innerHTML = "";
   const dropTarget = document.createElement("div");
   dropTarget.classList.add("drop-target");
@@ -540,20 +626,19 @@ const form = document.getElementById("project_form");
 form.addEventListener("submit", (event) => {
   event.preventDefault();
   const formData = new FormData(form);
-  const formDataObject = {};
-
-  formDataObject["name"] = formData.get("project_name");
-  formDataObject["standards"] = Object.entries(selectedStandards).reduce((acc, [key, value]) => {
-    acc[key] = value.map(obj => obj.id);
-    return acc;
-  }, {});;
-  formDataObject["token"] = localStorage.getItem("token");
-  console.log(formDataObject);
+  const formDataObject = fetchData;
+  const newName = formData.get("project_name")
+  if(projectData.name == newName){
+    showError("du har inte gjort någon ändring till namnet")
+    return
+  }
+  formDataObject["name"] = newName;
+  console.log(formDataObject)
   ipcRenderer.send(
     "apiRequest",
     formDataObject,
-    "http://127.0.0.1:8000/api/addnewproject",
-    "newProject"
+    "http://127.0.0.1:8000/api/project/updatename",
+    "updatedprojectresponse"
   );
 });
 

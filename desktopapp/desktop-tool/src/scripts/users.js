@@ -1,37 +1,27 @@
 
 
-const fetchData = {
-  token: localStorage.getItem("token"),
-  projectID: localStorage.getItem("currentProjectId"),
-};
+
 
 
 // custom dropdown
-let gridItemsData = [];
+let userGridItemsData = [];
 let currentProjectId = localStorage.getItem("currentProjectId");
 console.log(currentProjectId);
-let debounceTimeout = null;
+let userDebounceTimeout = null;
 
 // JavaScript to filter dropdown content based on input search query
-const inputField = document.querySelector(".dropdown-input");
+const userInputField = document.querySelector(".user-dropdown-input");
 const list = document.querySelector(".styled-list");
 const filter = document.getElementById("filter");
 
-inputField.addEventListener("input", () => search());
-filter.addEventListener("change", () => search());
+userInputField.addEventListener("input", () => searchUser());
+filter.addEventListener("change", () => searchUser());
 
-    fetchData.searchString = "";
-    fetchData.filter = filter.value
-    ipcRenderer.send(
-      "apiRequest",
-      fetchData,
-      "http://127.0.0.1:8000/api/users/search",
-      "usersResponse"
-    );
+searchUser()
     
-addItems(gridItemsData);
+addUser(userGridItemsData);
 
-function addItems(dataList) {
+function addUser(dataList) {
     list.innerHTML = "";
     dataList.forEach((item) => {
       let type = 'green-button">Add <i class="fa-solid fa-user-plus"';
@@ -53,7 +43,7 @@ function addItems(dataList) {
   function updateUser(email) {
     const updateData = fetchData
     updateData.email = email
-    var query = inputField.value.toLowerCase().trim();
+    var query = userInputField.value.toLowerCase().trim();
     updateData.searchString = query;
     updateData.filter = filter.value
     console.log(updateData)
@@ -65,15 +55,16 @@ function addItems(dataList) {
       )
   }
 
-function search() {
-  clearTimeout(debounceTimeout);
-  debounceTimeout = setTimeout(() => {
-    var query = inputField.value.toLowerCase().trim();
-    fetchData.searchString = query;
-    fetchData.filter = filter.value
+function searchUser() {
+  clearTimeout(userDebounceTimeout);
+  userDebounceTimeout = setTimeout(() => {
+    var query = userInputField.value.toLowerCase().trim();
+    const searchData = fetchData
+    searchData.searchString = query;
+    searchData.filter = filter.value
     ipcRenderer.send(
       "apiRequest",
-      fetchData,
+      searchData,
       "http://127.0.0.1:8000/api/users/search",
       "usersResponse"
     );
@@ -82,5 +73,5 @@ function search() {
 
 ipcRenderer.on("usersResponse", (event, responseData) => {
   console.log("data: " + responseData);
-  addItems(JSON.parse(responseData));
+  addUser(JSON.parse(responseData));
 });

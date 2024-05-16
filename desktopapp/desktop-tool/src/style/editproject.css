@@ -3,6 +3,7 @@
   .modal {
     display: none;
     position: fixed;
+    text-align: center;
     z-index: 1;
     left: 0;
     top: 0;
@@ -72,9 +73,6 @@
     background-color: transparent;
   }
 
-
-
-
   .standards > div{
     user-select: none;
     display:grid;
@@ -111,27 +109,151 @@
 }
 
 .project-form{
-  margin: 20px auto auto;
-  min-height: 500px;
-  width: 80%;
+  height: 600px;
   padding: 30px;
-  background-color: #525974ab;
-  color: rgb(255, 255, 255);
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3), 0 6px 20px 0 rgba(0, 0, 0, 0.2);
+  color: white;
+  overflow-x: hidden;
+  overflow-y: scroll;
 }
+
+
+.project-form::-webkit-scrollbar {
+  width: 10px; /* Width of the scrollbar */
+  z-index: 3;
+}
+
+.project-form::-webkit-scrollbar-track {
+  background: transparent; /* Background color of the scrollbar track */
+  z-index: 3;
+}
+
+.project-form::-webkit-scrollbar-thumb {
+  background-color: #63656e; /* Color of the scrollbar thumb */
+  border-radius: 4px; /* Rounded corners */
+  cursor:default;
+  z-index: 3;
+}
+
+/* Hide scrollbar when not hovering over the file explorer */
+.project-form:not(:hover)::-webkit-scrollbar-thumb {
+  background-color: transparent;
+}
+
+
+
+
+
+.project-name-container{
+    text-align: center;
+}
+.project-name-container > input[type="text"]{
+  background-color: white;
+  padding: 10px 30px 10px 20px;
+}
+.edit-btn{
+padding:8px;
+background-color: rgba(90, 93, 110, 0.816);
+color:white;
+font-size: 14px;
+}
+.edit-btn:hover{
+  background-color: rgba(115, 118, 139, 0.816);
+  cursor: pointer;
+}
+
 .selected-standards-container-div {
   display: grid;
-  grid-template-columns:  repeat(3, 1fr);
-  gap: 20px;
+  grid-template-columns:  auto;
+}
+.standard_type_list_list{
+    padding:0;
+}
+.standard_type_list_list li{
+    background-color: #2c2d34;
+    padding: 11px 10px 11px 10px;
+    margin-bottom: 5px;
+    border-radius: 5px;
+    height: 22px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: block;
+    justify-content: space-between;
+    align-items: center;
+}
+
+
+.standard_type_list_list li.selected{
+    height: auto;
+    min-height: 30px;
+    background-color: rgba(73, 75, 85, 0.816);
+}
+
+.sublist{
+    padding:0;
+    margin-top: 20px;
+    height: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease-in-out;
+}
+.sublist > li{
+    display: none;
+    cursor: pointer;
+}
+.sublist.selected{
+    display: block;
+    height: auto;
+    max-height: 400px;
+}
+
+.standard_type_list_list > li.selected{
+  max-height: 230px;
+  overflow-y: scroll;
+}
+.standard_type_list_list > li.selected::-webkit-scrollbar {
+  width: 10px; /* Width of the scrollbar */
+  z-index: 3;
+}
+
+.standard_type_list_list > li.selected::-webkit-scrollbar-track {
+  background: transparent; /* Background color of the scrollbar track */
+  z-index: 3;
+}
+
+.standard_type_list_list > li.selected::-webkit-scrollbar-thumb {
+  background-color: #63656e; /* Color of the scrollbar thumb */
+  border-radius: 4px; /* Rounded corners */
+  cursor:default;
+  z-index: 3;
+}
+
+/* Hide scrollbar when not hovering over the file explorer */
+.standard_type_list_list > li.selected:not(:hover)::-webkit-scrollbar-thumb {
+  background-color: transparent;
+}
+.sublist.selected > li{
+    display: block;
+}
+.remove-standard-item-btn{
+    background-color: rgb(124, 42, 42);
+    float: right;
+    border-radius: 6px;
+    padding: 5px 0 5px 0;
+    margin: auto;
+    width: 70px;
+    border:none;
+    color:white;
+    font-size: 15px;
+}
+
+.remove-standard-item-btn:hover{
+    background-color: rgb(168, 55, 55);
+    cursor: pointer;
 }
 
 .selected-standards-container {
-  min-width: 100px; /* Adjust the width as needed */
-  min-height: 100px; /* Adjust the height as needed */
-  background-color: rgb(36, 37, 48);
-  display: grid;
-  padding: 10px;
-  gap: 20px;
+  background-color: rgb(61, 63, 82);
+  height: 50px;
+  padding: 5px;
 }
 
 .selected-standards-container.selected {
@@ -159,15 +281,35 @@
         margin: 20px auto 20px auto;
         top: 30px;
         width:fit-content;
-        background-color: rgba(36, 37, 48, 0);
-        box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+        /* background-color: rgba(73, 75, 85, 0.816); */
         padding: 12px 16px;
         z-index: 1;
         max-height: 315px; /* Maximum height for the dropdown */
         overflow-y: auto; /* Enable vertical scrolling */
         overflow-x: hidden;
       }
+      
+.dropdown-content::-webkit-scrollbar {
+  width: 10px; /* Width of the scrollbar */
+  z-index: 3;
+}
 
+.dropdown-content::-webkit-scrollbar-track {
+  background: transparent; /* Background color of the scrollbar track */
+  z-index: 3;
+}
+
+.dropdown-content::-webkit-scrollbar-thumb {
+  background-color: #63656e; /* Color of the scrollbar thumb */
+  border-radius: 4px; /* Rounded corners */
+  cursor:default;
+  z-index: 3;
+}
+
+/* Hide scrollbar when not hovering over the file explorer */
+.dropdown-content:not(:hover)::-webkit-scrollbar-thumb {
+  background-color: transparent;
+}
       /* Style for the grid container */
       .grid-container {
         display: grid;
@@ -179,10 +321,9 @@
 
       /* Style for the grid item */
       .grid-item {
-        background-color: #525974ab;
+        background-color: rgba(73, 75, 85, 0.816);
         padding: 10px;
         text-align: center;
-        white-space: nowrap; /* Ensure content doesn't wrap */
         overflow: hidden; /* Hide any overflow */
         cursor: pointer; /* Add cursor pointer */
         height: 80px; /* Set a fixed height */

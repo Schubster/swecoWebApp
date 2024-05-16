@@ -2,6 +2,7 @@
     --gradientDark: linear-gradient(10deg,  rgb(129, 131, 153) 0%, rgb(36, 37, 48) 80%);
     --gradientDarkRev: linear-gradient(10deg,  rgb(36, 37, 48) 50%,rgb(129, 131, 153) 100%);
     --gradientGray: linear-gradient(10deg, #999898 0%, #000000 180%);
+    --containerDark: rgb(36, 37, 48);
   }
 .header {
     display: flex;

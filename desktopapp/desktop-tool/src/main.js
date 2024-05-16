@@ -66,6 +66,9 @@ ipcMain.on('load-page', (event, fileName,) => {
   mainWindow.loadFile(path.join(__dirname, "pages/" + fileName));
 });
 
+ipcMain.on('getPdfRreader', (event) => {
+  mainWindow.webContents.send('PdfReader', PdfReader)
+});
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.

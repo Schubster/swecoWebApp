@@ -4,11 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://kit.fontawesome.com/0ddcbcd5f1.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="../style/callout.css">
+    <link rel="stylesheet" href="../style/menu.css">
     <link rel="stylesheet" href="../style/project.css">
     <link rel="stylesheet" href="../style/users.css">
     <link rel="stylesheet" href="../style/renametool.css">
-    <link rel="stylesheet" href="../style/menu.css">
-    <link rel="stylesheet" href="../style/callout.css">
+    <link rel="stylesheet" href="../style/editproject.css">
     <title>Tools Page</title>
 </head>
 <body>
@@ -38,7 +39,6 @@
     </div>
 
     <div class="container">
-        
             <div class="tools view selected rename-content">
                 <div class="file-explorer empty" id="fileExplorer">
                     <p class="empty-explorer-text">Drag & drop files here to rename</p>
@@ -50,7 +50,7 @@
                     <div data-type="modeller" class="tooltab">Modell</div>
                     <div data-type="ritningar" class="tooltab">Ritning</div>
                 </div>
-                <div class="dropdown-container">
+                <div class="rename-options">
                     <div data-type="textdokument" class="type-container textdokument selected">text</div>
                     <div data-type="modeller" class="type-container modell">modell</div>
                     <div data-type="ritningar" class="type-container ritning">ritning</div>
@@ -66,7 +66,7 @@
         <div class="user view">
             <div class="list-container">
                 <div class="input-container">
-                <input class="dropdown-input" type="text" placeholder="Type to search" />
+                <input class="user-dropdown-input" type="text" placeholder="Type to search" />
                 <button class="user-button green-button">Add</button>
                   <label for="sorting">Filter:</label>
                     <select class="dropdown-select" id="filter">
@@ -82,15 +82,94 @@
               </div>
         </div>
 
-        <div class="validation view">validate</div>
+        
+          <div class="validation view"></div>
+        
 
-        <div class="edit view">Edit</div>
+        <div class="edit view">
+            <form class="project-form" id="project_form" action="" method="post">
+                <div class="project-name-container">
+                    <label for="project_name">Project Name</label><br>
+                    <input type="text" id="project_name" name="project_name" required>
+                    <input class="edit-btn" id="submit_project_name"type="submit" value="confirm name">
+                </div>
+
+                <label for="standard">Select Standards:</label><br>
+                
+                <div class="selected-standards-container-div">
+                    <ul class="standard_type_list_list">
+                        <li class="standard-type-list selected" data-type="textdokument">Textdokument
+                          <ul class="sublist selected">
+                          </ul>
+                        </li>
+                        <li class="standard-type-list" data-type="modeller">Modell
+                            <ul class="sublist">
+                            </ul>
+                        </li>
+                        <li class="standard-type-list" data-type="ritningar">Ritning
+                            <ul class="sublist">
+                            </ul>
+                        </li>
+                      </ul>
+                      
+                </div>
+                <div class="dropdown">
+                  <input class="dropdown-input" type="text" placeholder="Type to search"/>
+                  <button class="edit-btn" type="button" id="new_standard">Create New Standard</button>
+                  <div class="dropdown-content">
+                    <div class="grid-container"></div>
+                  </div>
+                </div>
+              
+              
+              
+                <div id="new_standard_modal" class="modal">
+                  <div class="modal-content">
+                    <span class="close" id="close_standard_modal">&times;</span>
+                    <div class="project-name-container">
+                      <label for="standard_name">Standard Name:</label><br>
+                      <input type="text" id="standard_name" name="standard_name">
+                    </div>
+                  
+                    <div class="standards" id="standards">
+              
+                    </div>
+                  
+                    <button class="edit-btn" type="button" id="add_new_dict">Add Standard</button><br><br>
+                    <label class="demofield-label"for="demofield">Demo Field:</label>
+                    <input type="text" class="demofield" id="editdemofield" name="demofield" readonly ><br><br>
+                    <button class="edit-btn" type="button" id="update_standard">Update Standard</button><br><br>
+                  </div>
+                </div>
+              
+                <div id="new_dictionary_modal" class="modal">
+                  <div class="modal-content">
+                  <span class="close" id="close_dictionary_modal">&times;</span>
+                  <label for="dictionary_name">Dictionary Name:</label><br>
+                    <input type="text" id="dictionary_name" name="dictionary_name"><br><br>
+              
+                    <label for="option">Options:</label><br>
+                    <div id="options">
+                    </div>
+                    <button type="button" id="add_option">Add Option</button><br><br>
+              
+                  <button type="button" id="add_dictionary">confirm</button><br><br>
+                    <!-- Add more fields as needed -->
+                  </div>
+                </div>
+              
+                
+              </form>
+        </div>
     </div>
 
     <script src="../scripts/callout.js"></script>
     <script src="../scripts/menu.js"></script>
-    <script src="../scripts/users.js"></script>
     <script src="../scripts/project.js"></script>
+    <script src="../scripts/users.js"></script>
     <script src="../scripts/renametool.js"></script>
+    <script src="../scripts/editproject.js"></script>
+
+    
 </body>
 </html>

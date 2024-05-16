@@ -190,17 +190,18 @@ class DictsDataSerializer(serializers.Serializer):
         fields = ['id', "name", "options"]
 
 class NewStandartSerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField(required=False)
     name = serializers.CharField(source='name.name')
-    dividers = serializers.CharField(required=False)
     dict_data = serializers.ListField(child=DictsDataSerializer(), required=False)
+    standardID = serializers.IntegerField(required=False)
+    projectID = serializers.IntegerField(required=False)
+    type = serializers.CharField(required=False)
     
     
 
 
     class Meta:
         model = Standard
-        fields = ['id', 'name', 'dividers', 'dict_data']
+        fields = ['id', 'name', 'dict_data', 'standardID', 'projectID', 'type']
 
     def get_name(self, obj):
         return obj.name.name if obj.name else None
