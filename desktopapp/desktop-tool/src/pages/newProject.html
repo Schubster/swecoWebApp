@@ -10,7 +10,9 @@
 <title>New Project Form</title>
 </head>
 <body>
-  <div class="header"><h1>Nytt Projekt</h1></div>
+  <div class="header">    <div class="logo">
+    <img src="../style/icons/sweco_white.png" alt="Logo">
+</div></div>
   <input type="checkbox" class="openSidebarMenu" id="openSidebarMenu">
   <label for="openSidebarMenu" class="sidebarIconToggle">
     <div class="spinner diagonal part-1"></div>
@@ -34,7 +36,7 @@
   <label for="standard">Select Standards:</label><br>
   
   <div class="selected-standards-container-div">
-    <h2>modeller</h2><h2>ritningar</h2><h2>textdokument</h2>
+    <h2>Modeller</h2><h2>Ritningar</h2><h2>Textdokument</h2>
     <div data-type="modeller" class="selected-standards-container"></div>
     
     <div data-type="ritningar" class="selected-standards-container"></div>
@@ -50,7 +52,7 @@
 
 
 
-  <button type="button" id="new_standard">Create new empty standard</button><br>
+  <button class="" type="button" id="new_standard">Create new empty standard</button><br>
   <div id="new_standard_modal" class="modal">
     <div class="modal-content">
       <span class="close" id="close_standard_modal">&times;</span>

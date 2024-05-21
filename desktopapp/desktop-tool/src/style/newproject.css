@@ -11,6 +11,9 @@
     overflow: auto;
     background-color: rgba(0,0,0,0.4);
   }
+  .logo{
+    scale: .5;
+}
 
   .modal-content {
     background-color:var(--containerDark);
@@ -42,8 +45,7 @@
   .demofield{
     width: 50%;
   }
-  .demofield-label{
-  }
+
   .standards{
     display:grid;
     overflow-x: scroll;
@@ -111,11 +113,12 @@
 }
 
 .project-form{
+  border-radius: 10px;
   margin: 20px auto auto;
   min-height: 500px;
   width: 80%;
   padding: 30px;
-  background-color: #525974ab;
+  background-color: rgb(36, 37, 48);
   color: rgb(255, 255, 255);
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3), 0 6px 20px 0 rgba(0, 0, 0, 0.2);
 }
@@ -128,7 +131,7 @@
 .selected-standards-container {
   min-width: 100px; /* Adjust the width as needed */
   min-height: 100px; /* Adjust the height as needed */
-  background-color: rgb(36, 37, 48);
+  background-color: rgb(76, 76, 83);
   display: grid;
   padding: 10px;
   gap: 20px;
@@ -248,6 +251,5 @@
         margin: 6px;
         font-size: 19px;
       }
-
-
+      
     
