@@ -13,10 +13,19 @@ let userDebounceTimeout = null;
 const userInputField = document.querySelector(".user-dropdown-input");
 const list = document.querySelector(".styled-list");
 const filter = document.getElementById("filter");
-
+const addBtn = document.getElementById("add-user-btn")
 userInputField.addEventListener("input", () => searchUser());
 filter.addEventListener("change", () => searchUser());
-
+addBtn.addEventListener("click", ()=>{
+  const regex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+  const email = userInputField.value
+  if(regex.test(email)){
+    updateUser(email)
+  }
+  else{
+    showError("måste var ett giltligt email")
+  }
+})
 searchUser()
     
 addUser(userGridItemsData);

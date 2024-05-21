@@ -12,6 +12,7 @@
     min-width: 130px;
     display: flex; /* Use flexbox to align items */
     align-items: center; /* Center items vertically */
+    animation: ease-in ;
 }
 
 .error{

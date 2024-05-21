@@ -388,7 +388,11 @@ def updateUserMember(request):
         except Projects.DoesNotExist:
             return JsonResponse({"error": "The project cannot be found"}, status=400)
         email = request.data["email"]
-        user = Users.objects.filter(email=email)[0]
+        user = Users.objects.filter(email=email)
+        if not user.exists():
+            print("new User", email)
+            return JsonResponse({"error": "new user"}, status=400)
+        user = user.first()
         try:
             UserProjectMapping.objects.get(user=user, project=project).delete()
         except UserProjectMapping.DoesNotExist:
