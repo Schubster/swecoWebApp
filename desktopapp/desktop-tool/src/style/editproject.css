@@ -43,8 +43,6 @@
   .demofield{
     width: 50%;
   }
-  .demofield-label{
-  }
   .standards{
     display:grid;
     max-height: 305px;
@@ -374,21 +372,7 @@ font-size: 14px;
       .option-button:hover {
         background-color: #242a42;
       }
-      .dividers {
-        display: flex;
-        justify-content: center; /* Horizontally center child elements */
-        align-items: center; /* Vertically center child elements */
-        margin: 30px 10px 40px 10px;
-      }
-      
-      .dividers > input {
-        align-items: center;
-        width: 15px;
-        height: 15px;
-        padding: 8px;
-        margin: 6px;
-        font-size: 19px;
-      }
+
 
 
     

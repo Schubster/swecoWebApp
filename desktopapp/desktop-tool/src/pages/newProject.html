@@ -22,27 +22,37 @@
     <div id="sidebarMenu">
         <ul class="sidebarMenuInner">
             <li>SWECO <span>Web App</span></li>
-            <li><a href="https://www.sweco.se/" target="_blank"><span>Sweco Företagssida</span></a></li>
+            <li onclick='shell.openExternal("https://www.sweco.se/")'><span>Sweco Företagssida</span></a></li>
             <li onclick='menuSend("newproject.html")'><a><span>Projektskapare</span></a></li>
             <li onclick='menuSend("projectview.html")'><a><span>Projektvy</span></a></li>
             <li onclick='menuSend("index.html")'><span>Logga ut</span></a></li>
         </ul>
     </div>
-
+<div class="form-container">
 <form class="project-form" id="project_form" action="" method="post">
   
-  <label for="project_name">Project Name:</label><br>
-  <input type="text" id="project_name" name="project_name" required><br><br>
-  <label for="standard">Select Standards:</label><br>
+  <div class="project-name-container">
+    <label for="project_name">Projekt Namn</label><br>
+    <input type="text" id="project_name" name="project_name" required>
+</div>
   
-  <div class="selected-standards-container-div">
-    <h2>Modeller</h2><h2>Ritningar</h2><h2>Textdokument</h2>
-    <div data-type="modeller" class="selected-standards-container"></div>
+<div class="selected-standards-container-div">
+  <ul class="standard_type_list_list">
+      <li class="standard-type-list selected" data-type="textdokument">Textdokument
+        <ul class="sublist selected">
+        </ul>
+      </li>
+      <li class="standard-type-list" data-type="modeller">Modell
+          <ul class="sublist">
+          </ul>
+      </li>
+      <li class="standard-type-list" data-type="ritningar">Ritning
+          <ul class="sublist">
+          </ul>
+      </li>
+    </ul>
     
-    <div data-type="ritningar" class="selected-standards-container"></div>
-    
-    <div data-type="textdokument" class="selected-standards-container"></div>
-  </div>
+</div>
   <div class="dropdown">
     <input class="dropdown-input" type="text" placeholder="Type to search" />
     <div class="dropdown-content">
@@ -52,7 +62,7 @@
 
 
 
-  <button class="" type="button" id="new_standard">Create new empty standard</button><br>
+  <button class="edit-btn"type="button" id="new_standard">Create new empty standard</button><br>
   <div id="new_standard_modal" class="modal">
     <div class="modal-content">
       <span class="close" id="close_standard_modal">&times;</span>
@@ -62,10 +72,10 @@
 
       </div>
     
-      <button type="button" id="add_new_dict">Add Standard</button><br><br>
+      <button class="edit-btn" type="button" id="add_new_dict">Add Standard</button><br><br>
       <label class="demofield-label"for="demofield">Demo Field:</label>
       <input type="text" class="demofield" id="demofield" name="demofield" readonly ><br><br>
-      <button type="button" id="submit_standard">Submit New Standard</button><br><br>
+      <button class="edit-btn" type="button" id="submit_standard">Submit New Standard</button><br><br>
     </div>
   </div>
 
@@ -78,15 +88,16 @@
       <label for="option">Options:</label><br>
       <div id="options">
       </div>
-      <button type="button" id="add_option">Add Option</button><br><br>
+      <button class="edit-btn" type="button" id="add_option">Add Option</button><br><br>
 
-    <button type="button" id="add_dictionary">confirm</button><br><br>
+    <button class="edit-btn" type="button" id="add_dictionary">confirm</button><br><br>
       <!-- Add more fields as needed -->
     </div>
   </div>
 
-  <input type="submit" value="Submit">
+  <input class="edit-btn" type="submit" value="Submit">
 </form>
+</div>
 
 <script src="../scripts/callout.js"></script>
 <script src="../scripts/menu.js"></script>

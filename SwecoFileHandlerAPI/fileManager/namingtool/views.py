@@ -107,10 +107,10 @@ def addnewstandard(request):
                 standard_name,_ = Names.objects.get_or_create(name=standard_name)
                 standard = Standard.objects.create(name=standard_name)
                 mapDictData(serializer.data.get('dict_data', []), standard)
-            print(serializer.data)
-            standard = Standard.objects.get(id=standard_id)
-            standard.standarddictmapping_set.all().prefetch_related('dictionary', 'dictionary__optiondictmapping_set').delete()
-            mapDictData(serializer.data.get('dict_data', []), standard)
+            else:
+                standard = Standard.objects.get(id=standard_id)
+                standard.standarddictmapping_set.all().prefetch_related('dictionary', 'dictionary__optiondictmapping_set').delete()
+                mapDictData(serializer.data.get('dict_data', []), standard)
             standards = Standard.objects.all()[:21]
             serializer = StandardSerializer(standards, many=True)  # Serialize queryset
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -390,7 +390,7 @@ def updateUserMember(request):
         email = request.data["email"]
         user = Users.objects.filter(email=email)
         if not user.exists():
-            print("new User", email)
+            # TODO: some system to email the new user to inform them of the app and their invetation to join a project
             return JsonResponse({"error": "new user"}, status=400)
         user = user.first()
         try:

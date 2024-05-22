@@ -67,7 +67,6 @@ let selectedList = document.querySelector(".sublist.selected")
 
 // JavaScript to filter dropdown content based on input search query
 const inputField = document.querySelector(".dropdown-input");
-console.log(inputField)
 const dropdownContent = document.querySelector(".dropdown-content");
 const gridContainer = document.querySelector(".grid-container");
 const dropdownContainer = document.querySelector(".dropdown");
@@ -75,9 +74,7 @@ const selectedStandardsContainer = document.querySelector(
   ".selected-standards-container-div"
 );
 const editTypeList = selectedStandardsContainer.querySelectorAll(".standard-type-list")
-const containers = document.querySelectorAll('.selected-standards-container');
 let updatedProjectData = null
-const changedData = {removed:[],added:[],changed:[]}
 function makeEditTool(){
   updatedProjectData = projectData
   displaySelectedStandards()

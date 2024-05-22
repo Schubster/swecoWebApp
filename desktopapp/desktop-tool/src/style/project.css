@@ -24,7 +24,7 @@
     display: block;
 }
 .container > div {
-    background-color: rgb(37, 49, 182);
+    background-color: rgb(36, 37, 48);
     color: white;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3), 0 6px 20px 0 rgba(0, 0, 0, 0.2);
     min-height: 600px;

@@ -13,7 +13,7 @@ var testStandardList = {
   }
 }
 
-const emptyProject = [
+const newProject = [
   {
     id: 0,
     name: "Project1",
@@ -58,8 +58,8 @@ const fetchData = { token: localStorage.getItem("token") };
 let gridItemsData = [];
 let selectedStandards = { "modeller": [], "ritningar": [], "textdokument": [] };
 let debounceTimeout = null;
-let selectedType = null;
-let selectedTypeDiv = null
+let selectedType = "textdokument";
+let selectedList = null
 
 // JavaScript to filter dropdown content based on input search query
 const inputField = document.querySelector(".dropdown-input");
@@ -69,25 +69,54 @@ const dropdownContainer = document.querySelector(".dropdown");
 const selectedStandardsContainer = document.querySelector(
   ".selected-standards-container-div"
 );
+const editTypeList = selectedStandardsContainer.querySelectorAll(".standard-type-list")
 
-const containers = document.querySelectorAll('.selected-standards-container');
+function displaySelectedStandards(){
+  editTypeList.forEach(typeList=>{
+  const subList = typeList.querySelector(".sublist")
+  subList.innerHTML = '';
+  
+  selectedStandards[typeList.dataset.type].forEach(standard=>{
+    makeStandardli(standard, subList)
+  })
 
-containers.forEach(container => {
-  container.addEventListener('click', function () {
-    selectType(container)
-  });
-});
-function selectType(container) {
-  containers.forEach(c => c.classList.remove('selected'));
-  selectedType = container.dataset.type
-  selectedTypeDiv = container
-  container.classList.add('selected');
+  typeList.addEventListener("click", ()=>{
+      editTypeList.forEach(listItem=> {
+          listItem.querySelector(".sublist").classList.remove("selected")
+          listItem.classList.remove("selected")
+          
+      })
+      selectedList = subList
+      selectedType = typeList.dataset.type
+      subList.classList.add("selected")
+      typeList.classList.add("selected")
+  })
+})
 }
-selectType(containers[0])
+displaySelectedStandards()
+
+function makeStandardli(standard, subList){
+const listItem = document.createElement("li")
+listItem.innerText = standard.name
+listItem.addEventListener("click",()=>{
+  editStandard(standard.id, standard.name)}
+  )
+const removeBtn = document.createElement("button")
+removeBtn.classList.add("remove-standard-item-btn")
+removeBtn.innerText = "Ta bort"
+removeBtn.type = "button"
+removeBtn.addEventListener("click", (event)=>{
+  event.stopPropagation()
+  selectedStandards[selectedType] = selectedStandards[selectedType].filter(removeStandard => removeStandard.id !== standard.id)
+  listItem.remove()
+})
+listItem.appendChild(removeBtn)
+subList.appendChild(listItem)
+}
 
 inputField.addEventListener("input", () => search());
 inputField.addEventListener("focus", () => showDropdown());
-inputField.addEventListener("focusout", () => hideDropdown());
+//inputField.addEventListener("focusout", () => hideDropdown());
 dropdownContent.addEventListener("mousedown", (event) =>
   preventFocusOut(event)
 );
@@ -164,30 +193,6 @@ function search() {
   }, 300);
 }
 
-function displaySelectedStandards(type, div) {
-  div.innerHTML = "";
-  selectedStandards[type].forEach((item) => {
-    const standardItem = document.createElement("div");
-    standardItem.classList.add("selected-item");
-    standardItem.textContent = item.name;
-    standardItem.dataset.index = item.id;
-    standardItem.dataset.type = type;
-
-    standardItem.addEventListener("click", function () {
-      const index = parseInt(this.dataset.index);
-      console.log(this.dataset.type + this.dataset.index)
-      const selectedIndex = selectedStandards[this.dataset.type].findIndex(
-        (item) => item.id === index
-      );
-      if (selectedIndex !== -1) {
-        selectedStandards[this.dataset.type].splice(selectedIndex, 1);
-        displaySelectedStandards(this.dataset.type, this.parentElement);
-      }
-      console.log(selectedStandards)
-    });
-    div.appendChild(standardItem);
-  });
-}
 
 function createOptionButton(text) {
   const button = document.createElement("div");
@@ -199,7 +204,7 @@ function createOptionButton(text) {
 function addStandard(index, name) {
   if (!selectedStandards[selectedType].find((item) => item.id === index)) {
     selectedStandards[selectedType].push({ id: index, name: name });
-    displaySelectedStandards(selectedType, selectedTypeDiv);
+    displaySelectedStandards();
   }
 }
 
@@ -474,12 +479,12 @@ submitStandard.addEventListener("click", function () {
   });
   standardData.token = localStorage.getItem("token");
   console.log(JSON.stringify(standardData));
-  // ipcRenderer.send(
-  //   "apiRequest",
-  //   standardData,
-  //   "http://127.0.0.1:8000/api/addnewstandard",
-  //   "allStandardResponse"
-  // );
+  ipcRenderer.send(
+    "apiRequest",
+    standardData,
+    "http://127.0.0.1:8000/api/addnewstandard",
+    "allStandardResponse"
+  );
 });
 
 ipcRenderer.send(
